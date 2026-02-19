@@ -1,5 +1,4 @@
-﻿using GymMangmentSystemDAL.Configuration;
-using GymMangmentSystemDAL.Entities;
+﻿using GymMangmentSystemDAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -18,6 +17,13 @@ namespace GymMangmentSystemDAL.Data.Configurations
             builder.Property(T => T.CreatedAt).
                 HasColumnName("HireDate").
                 HasDefaultValueSql("Getdate()");
+            //==============================================================
+            //Relathion Using Fluent APi
+            builder.HasMany<Session>()
+                    .WithOne(T => T.Trainer)
+                    .HasForeignKey(T => T.TrainerId).OnDelete(DeleteBehavior.NoAction); ;
+
+
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using GymMangmentSystemDAL.Configuration;
-using GymMangmentSystemDAL.Entities;
+﻿using GymMangmentSystemDAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;

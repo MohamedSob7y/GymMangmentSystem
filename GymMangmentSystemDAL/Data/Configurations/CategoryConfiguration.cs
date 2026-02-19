@@ -15,6 +15,14 @@ namespace GymMangmentSystemDAL.Data.Configurations
         {
             builder.Property(T => T.CategoryName)
                 .HasMaxLength(20);
+
+            //Category With Session
+            builder.HasMany(T => T.Sessions)
+                    .WithOne(T => T.Category)
+                    .HasForeignKey(T => T.CategoryId);
+
+
+
         }
     }
 }

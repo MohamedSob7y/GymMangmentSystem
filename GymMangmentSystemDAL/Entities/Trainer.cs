@@ -10,5 +10,11 @@ namespace GymMangmentSystemDAL.Entities
     {
         public Speciality Speciality {  get; set; }
         //Rename CreatedAt To HireDateلما يتحول الى table in Database 
+        //==========================================================================
+        #region Relations
+        //Trainer With Session 1 Partial -M Total
+        public ICollection <Session>? Sessions { get; set; }
+        #endregion
+
     }
 }

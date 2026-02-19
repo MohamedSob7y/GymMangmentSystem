@@ -13,5 +13,11 @@ namespace GymMangmentSystemDAL.Entities
         public string BloodType {  get; set; }
         public string? Note { get; set; }//Allow Null عشان ممكن الدتور ميكنشى عنده اى ملاحظات على المريض
         //Rename LastUpdated At لما احول  دا الى table in Database => Updatedat
+         //=====================================================================
+        #region Relation
+        //Relation with Member + Healthrecord
+        public Member Member { get; set; }
+
+        #endregion
     }
 }
