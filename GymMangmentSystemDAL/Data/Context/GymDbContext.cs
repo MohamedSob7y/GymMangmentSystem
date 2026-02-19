@@ -47,7 +47,7 @@ namespace GymMangmentSystemDAL.Data.Context
         //وانا بكتب الMigration لازم default Project in DAL ولو عندى اكتر من Context بكتبه 
         //Add-Migration  "FirstMigration" -StartUpProject لو هعملها بالكود ول لاء احددها من فوق اصلا  
         //Add-Migration  "First Create" -OutputDir "Data/Migrations" علشان يحطها فى Folder Data/Migration
-        //ظهرت مشكلة 
+        //ظهرت مشكلة  وجود Created At + JoinDate والاتيني اصلا نفس الحاجة فى Filde Migration حلينا المشكلة ان عملنا Ignore For Created At اللى ورثتها من  Base Enityt 
 
         #endregion
 
