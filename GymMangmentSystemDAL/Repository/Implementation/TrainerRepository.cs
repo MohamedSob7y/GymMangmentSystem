@@ -11,11 +11,21 @@ namespace GymMangmentSystemDAL.Repository.Implementation
 {
     public class TrainerRepository : ITrainerRepository
     {
+
         #region Problem With Open Connection with DbContext
-        private readonly GymDbContext _gymDbContext = new GymDbContext();
+        //private readonly GymDbContext _gymDbContext = new GymDbContext();
         //طالما عملت Object To Open Connection with Database مش هعمل اى تعديل عليها عشان كدة هعملها Private / Readonly
         //هنا عملته Manual واا مش عاريز كدة عشان عملى مشكلة Dependency injection
         #endregion
+        //===================================================
+        #region Solving Problem With Dependency injection
+        private readonly GymDbContext _gymDbContext;
+        public TrainerRepository(GymDbContext gymDbContext)
+        {
+            _gymDbContext = gymDbContext;
+        }
+        #endregion
+        //===================================================
         public int Add(Trainer trainer)
         {
             _gymDbContext.Add(trainer);

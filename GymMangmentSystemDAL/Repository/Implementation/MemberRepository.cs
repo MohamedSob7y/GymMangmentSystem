@@ -11,13 +11,35 @@ namespace GymMangmentSystemDAL.Repository.Implementation
 {
     public class MemberRepository : IMemberRepository
     {
+
         #region Problem With Open Connection with DbContext
-        private readonly GymDbContext _gymDbContext = new GymDbContext(); 
+        //private readonly GymDbContext _gymDbContext = new GymDbContext();
         //طالما عملت Object To Open Connection with Database مش هعمل اى تعديل عليها عشان كدة هعملها Private / Readonly
         //هنا عملته Manual واا مش عاريز كدة عشان عملى مشكلة Dependency injection
         #endregion
         //==========================================================
-        
+        #region Solving Problem With Dependency injection
+        private readonly GymDbContext _gymDbContext;//دا الReference اللى بعمله عشان اقدر امسك الObject اللى CLR عمله Automatic
+       //ASK CLR to inject object From GymDbcontext or any class implement GymDbcontext in Runtime 
+       //لازم اروح اعمله فى Main .cs
+        //public MemberRepository(GymDbContext gymDbContext)
+        //    :base()//Will Chain For GymDbcontext and GymDbcontext chain from Dbcontext Construcotr 
+        //           //Dbcontext Construcotr  Chain For Constructor take Options from OnConfigure 
+        //{
+        //    _gymDbContext = gymDbContext;
+        //}
+
+        //===================================================================================
+
+        public MemberRepository(GymDbContext gymDbContext)
+           : base()
+        {
+            _gymDbContext = gymDbContext;
+        }
+
+
+        #endregion
+        //==========================================================
         public int Add(Member member)
         {
              _gymDbContext.Members.Add(member);

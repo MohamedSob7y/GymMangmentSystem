@@ -11,12 +11,33 @@ namespace GymMangmentSystemDAL.Data.Context
 {
     public class GymDbContext:DbContext
     {
-
         #region Open Connection
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //دى نعملها لو ASk Clr to inject object in Runtime from GymDbcontext
+        //طب الFlow اللى بيحصل 
+        //MemberRepositoryConstructor chain for GymDbcontext
+        //Gymdbcontext chain for base Constrcutor in Dbcontext
+        //base Constrcutor in Dbcontext chain for Construcotr in dbcontext take options from On Configure 
+        //انا بدل اللفة دى عملتها بالطريقة التانيه 
+        #region Old Way
+        //public GymDbContext() : base()
+        //{
+
+        //}
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseSqlServer("Server=DESKTOP-9DG3E18;Database=GymMangmentSystem;Trusted_Connection=true;TrustServerCertificate=true");
+        //}
+        #endregion
+        //===============================================
+        #region New Way
+        private readonly DbContextOptions _options;
+        public GymDbContext(DbContextOptions<GymDbContext> options)
+            :base(options)
         {
-            optionsBuilder.UseSqlServer("Server=DESKTOP-9DG3E18;Database=GymMangmentSystem;Trusted_Connection=true;TrustServerCertificate=true");
+            _options = options;
         }
+        #endregion
+        //===============================================
         #endregion
         //===============================================
         #region Apply Configurations
@@ -47,7 +68,7 @@ namespace GymMangmentSystemDAL.Data.Context
         //وانا بكتب الMigration لازم default Project in DAL ولو عندى اكتر من Context بكتبه 
         //Add-Migration  "FirstMigration" -StartUpProject لو هعملها بالكود ول لاء احددها من فوق اصلا  
         //Add-Migration  "First Create" -OutputDir "Data/Migrations" علشان يحطها فى Folder Data/Migration
-        //ظهرت مشكلة 
+        //ظهرت مشكلة  وجود Created At + JoinDate والاتيني اصلا نفس الحاجة فى Filde Migration حلينا المشكلة ان عملنا Ignore For Created At اللى ورثتها من  Base Enityt 
 
         #endregion
 
