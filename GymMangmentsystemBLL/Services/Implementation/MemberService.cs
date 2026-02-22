@@ -115,7 +115,7 @@ namespace GymMangmentsystemBLL.Services.Implementation
         //=====================================================
         #endregion
         //=====================================================
-        #region Helper Method 
+        #region Helper Methods
 
 
 
