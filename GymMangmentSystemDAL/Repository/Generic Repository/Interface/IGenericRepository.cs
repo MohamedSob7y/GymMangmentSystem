@@ -19,7 +19,7 @@ namespace GymMangmentSystemDAL.Repository.Generic_Repository.Interface
         int Update(T entity);
         int Delete(T entity);
         IEnumerable<T> GetAll();
-        IEnumerable<T> GetAll(Func<T,bool>? Condition);//To Take Func To Fiter Data
+        IEnumerable<T> GetAll(Func<T,bool>? Condition=null);//To Take Func To Fiter Data
         T? GetById(int id);
     }
 }

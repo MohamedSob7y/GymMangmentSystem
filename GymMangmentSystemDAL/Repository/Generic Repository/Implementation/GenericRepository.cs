@@ -32,7 +32,7 @@ namespace GymMangmentSystemDAL.Repository.Generic_Repository.Implementation
 
         public IEnumerable<T> GetAll() => _gymDbContext.Set<T>().ToList();
 
-        public IEnumerable<T> GetAll(Func<T, bool>? Condition)
+        public IEnumerable<T> GetAll(Func<T, bool>? Condition=null)
         {
             if (Condition is null)
             {

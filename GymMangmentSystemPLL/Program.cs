@@ -2,6 +2,8 @@
 using GymMangmentSystemDAL.Entities;
 using GymMangmentSystemDAL.Repository.Generic_Repository.Implementation;
 using GymMangmentSystemDAL.Repository.Generic_Repository.Interface;
+using GymMangmentSystemDAL.Repository.Implementation;
+using GymMangmentSystemDAL.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -53,6 +55,10 @@ namespace GymMangmentSystemPLL
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));//دا لاى Entityt
             #endregion
             //==========================================
+            #region Object From IplanRepository
+            builder.Services.AddScoped(typeof(IPlanRepository),typeof(PlanRepository));
+            #endregion
+            //==========================================
             #endregion
             //==========================================
             #region Build + Configuration+ Run application
@@ -76,6 +82,7 @@ namespace GymMangmentSystemPLL
             //Run Application 
             app.Run(); 
             #endregion
+            
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,15 @@ namespace GymMangmentsystemBLL.View_Models.Member_View_Model
         public string? Photo { get; set; }
         public string Phone { get; set; } = null!;
         public string Gender {  get; set; } = null!;
-
+        //=====================================================
+        //For ViewModel GetAllDetails
+        //هحط باقى الData هنا وعشان فى GetallMembers لازم ادخلهم ساعتها اعملهم Allow Null 
+        //لما اعملهم Allow Null كدة وانا بعمل GetAllMembers مش شرط املاهم 
+        //وبرضو مش شرط املاهم فى GetDetails
+        public string? PlanName {  get; set; } 
+        public string? DateOfBirth {  get; set; }
+        public string? Address {  get; set; }
+        public string? MembershipStartDate {  get; set; }
+        public string? MembershipEndDate { get; set; }
     }
 }
