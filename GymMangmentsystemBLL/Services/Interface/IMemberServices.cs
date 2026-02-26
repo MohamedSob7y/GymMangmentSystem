@@ -25,5 +25,6 @@ namespace GymMangmentsystemBLL.Services.Interface
         bool UpdateMember(int MemberId,MemberToUpdateViewModel memberToUpdateViewModel);//تاخد شكل الداتا اللى هروح اغيرها فى الداتاDatabase 
 
         //===============================================================
+        bool RemoveMember(int MemberId);  
     }
 }

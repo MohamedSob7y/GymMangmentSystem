@@ -4,6 +4,8 @@ using GymMangmentSystemDAL.Repository.Generic_Repository.Implementation;
 using GymMangmentSystemDAL.Repository.Generic_Repository.Interface;
 using GymMangmentSystemDAL.Repository.Implementation;
 using GymMangmentSystemDAL.Repository.Interface;
+using GymMangmentSystemDAL.Unit_Of_Work.Implementation;
+using GymMangmentSystemDAL.Unit_Of_Work.Interface;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -57,6 +59,13 @@ namespace GymMangmentSystemPLL
             //==========================================
             #region Object From IplanRepository
             builder.Services.AddScoped(typeof(IPlanRepository),typeof(PlanRepository));
+            #endregion
+            //==========================================
+            #region Object From IUnitOfWork
+            //هنا مش محتاجين  Object from IGeneric Repository
+            builder.Services.AddScoped(typeof(IUniteOfWork),typeof(UniteOfWork));
+            //بمجرد اننتهاء Request => CLr Dispose object from Heap by default 
+            //ممكن تلاقى UnitofWork implement interface Idisposable 
             #endregion
             //==========================================
             #endregion
