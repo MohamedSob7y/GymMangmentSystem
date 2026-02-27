@@ -117,7 +117,7 @@ namespace GymMangmentsystemBLL.Services.Implementation
                 #endregion
                 //=====================================================
                 #region After Helper Method
-                if(IsEmailExist(Member.Email)||IsPhoneExist(Member.Phone))
+                if(IsEmailExist(Member.Email)||IsPhoneExist(Member.Phone)||Member is null)
                     return false;
                 #endregion
                 //=====================================================
