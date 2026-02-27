@@ -15,11 +15,23 @@ namespace GymMangmentSystemDAL.Repository.Generic_Repository.Interface
     //عشان كدة نعمل Constrain كمان new معناها انا عايز اى Class will be implement interface Baseentity وكمان يكون عنده Constrauctur ولان abstract class Not has Constrauctur 
     public interface IGenericRepository<T> where T:BaseEntity,new()
     {
-        int Add(T entity);
-        int Update(T entity);
-        int Delete(T entity);
+        #region Before UnitOfWork
+        //int Add(T entity);
+        //int Update(T entity);
+        //int Delete(T entity);
+        //IEnumerable<T> GetAll();
+        //IEnumerable<T> GetAll(Func<T, bool>? Condition = null);//To Take Func To Fiter Data
+        //T? GetById(int id); 
+        #endregion
+        //======================================
+        #region After UnitOfWork
+        void Add(T entity);
+        void Update(T entity);
+        void Delete(T entity);
         IEnumerable<T> GetAll();
-        IEnumerable<T> GetAll(Func<T,bool>? Condition);//To Take Func To Fiter Data
+        IEnumerable<T> GetAll(Func<T, bool>? Condition = null);//To Take Func To Fiter Data
         T? GetById(int id);
+
+        #endregion
     }
 }

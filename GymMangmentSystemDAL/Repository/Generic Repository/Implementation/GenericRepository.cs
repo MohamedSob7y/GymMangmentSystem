@@ -18,21 +18,67 @@ namespace GymMangmentSystemDAL.Repository.Generic_Repository.Implementation
         {
             _gymDbContext = gymDbContext;
         }
-        public int Add(T entity)
+        //==================================================
+        #region Before UniteOfWOrk
+        //public int Add(T entity)
+        //{
+        //    _gymDbContext.Set<T>().Add(entity);
+        //    return _gymDbContext.SaveChanges();
+        //}
+
+        //public int Delete(T entity)
+        //{
+        //    _gymDbContext.Set<T>().Remove(entity);
+        //    return _gymDbContext.SaveChanges();
+        //}
+
+        //public IEnumerable<T> GetAll() => _gymDbContext.Set<T>().ToList();
+
+        //public IEnumerable<T> GetAll(Func<T, bool>? Condition = null)
+        //{
+        //    if (Condition is null)
+        //    {
+        //        return _gymDbContext.Set<T>().AsNoTracking()
+        //            .ToList();
+        //    }
+        //    else
+        //    {
+        //        return _gymDbContext.Set<T>().AsNoTracking().Where(Condition)
+        //            .ToList();
+        //        //Use .AsNoTracking() عشان مش محتاج اى حاجة فى Database انا Get From Dstabase عشان كدة مش محتاج Keep Tracking 
+        //        //AsNoTracking() استخدمها عشان لو هعمل اى حاجة على Database like Create Update Delete كدة لازم اعمل tracking 
+        //    }
+        //}
+
+        //public T? GetById(int id) => _gymDbContext.Set<T>().Find(id);
+
+
+        //public int Update(T entity)
+        //{
+        //    _gymDbContext.Set<T>().Update(entity);
+        //    return _gymDbContext.SaveChanges();
+        //}
+        #endregion
+        //==================================================
+        #region Refactor After UnitOfWork
+        //Remove Save changes لان هعلمها من Unite ofWork مش من هنا 
+        //هجمع كل Operations مرة واحدة واروح اكلم الDatabase مرة واحدة عشان Save Chnages
+        //Add + Update + Delete بتتم Local 
+        //After Call Save change in UnitOfWork كل الOperations الل حصلت Local هتتعمل بقا فى database 
+        public void Add(T entity)
         {
-            _gymDbContext.Set<T>().Add(entity);
-            return _gymDbContext.SaveChanges();
+             _gymDbContext.Set<T>().Add(entity);
         }
 
-        public int Delete(T entity)
+        public void Delete(T entity)
         {
             _gymDbContext.Set<T>().Remove(entity);
-            return _gymDbContext.SaveChanges();
+          
         }
 
         public IEnumerable<T> GetAll() => _gymDbContext.Set<T>().ToList();
 
-        public IEnumerable<T> GetAll(Func<T, bool>? Condition)
+        public IEnumerable<T> GetAll(Func<T, bool>? Condition = null)
         {
             if (Condition is null)
             {
@@ -48,13 +94,16 @@ namespace GymMangmentSystemDAL.Repository.Generic_Repository.Implementation
             }
         }
 
-        public T? GetById(int id)=> _gymDbContext.Set<T>().Find(id);
+        public T? GetById(int id) => _gymDbContext.Set<T>().Find(id);
 
 
-        public int Update(T entity)
+        public void Update(T entity)
         {
             _gymDbContext.Set<T>().Update(entity);
-            return _gymDbContext.SaveChanges();
+            
         }
+
+
+        #endregion
     }
 }
