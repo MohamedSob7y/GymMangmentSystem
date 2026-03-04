@@ -9,6 +9,7 @@ using GymMangmentSystemDAL.Unit_Of_Work.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -151,17 +152,86 @@ namespace GymMangmentsystemBLL.Services.Implementation
         //===============================================================================
         public UpdateSessionViewModel? GetsessionToUpdate(int SessionId)
         {
-           
+            //مفيش هنا بقا TrainerName+CategoryName يبقى استخدم GetReposiroty Not SessionRepository هستخدم عادى GetAll مش GetSessionTrainer+Category
+            var session = _uniteOfWork.GetRepository<Session>()
+                 .GetById(SessionId);
+            //BuisneessRule For 
+            //Buseness Rule => Canont Update Session has Active Booking
+            // is Session is Null => No Updateing
+            //Sessionis Completed => No Updated
+            //Session is Startded => No Updateing
+            //Make Helper Method has All Validation 
+            //محتاج Valida For isTrainerIsExsist عشان اعرف انه متغيرشى 
+            if (!IsSessionAvailableToUpdate(session!)) return null;
+            #region Manual Mapping
+            //return new UpdateSessionViewModel()
+            //{
+            //    TrainerId = session.TrainerId, //دا موجود اصلا بطريقة مباشرة فى Table session عشان كدة خليته هو اللى يعملها مش انا اللى بعمله فيها 
+            //    Description = session.Description,
+            //    EndDate=session.EndDate,
+            //    StartDate=session.StartDate,
+
+            //};
+            #endregion
+            //===============================================================================
+            #region Automatic Mapping
+            //Automatic Mapping 
+            return _Mapper.Map<Session,UpdateSessionViewModel>(session);
+            #endregion
         }
         //===============================================================================
         public bool RemoveSession(int SessionId)
         {
-           
+            try
+            {
+                var session = _uniteOfWork.GetRepository<Session>()
+                        .GetById(SessionId);
+                //Canont Delete Session with Future Date
+                //Canont Delete Sessiion ongoign and Not Completed 
+                //If Session has ActiveBooking =>Not Delete this
+                //Make Helper Method
+                if (!ISessionValidToDelete(session!)) return false;
+                _uniteOfWork.GetRepository<Session>()
+                  .Delete(session!);
+                return _uniteOfWork.SaveChanges() > 0;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
+               
         }
         //===============================================================================
         public bool UpdateSession(int SessionId, UpdateSessionViewModel updateSessionViewModel)
         {
-            
+            try
+            {
+                var session = _uniteOfWork.GetRepository<Session>()
+                      .GetById(SessionId);
+                if (!IsSessionAvailableToUpdate(session!) ||
+                    !TrainerExsist(updateSessionViewModel.TrainerId) ||
+                    !TimeValid(updateSessionViewModel.StartDate, updateSessionViewModel.EndDate)) return false;
+                //يعمل كدة تانى Validation in This Services مع انى عملتها اصلا فى GetSessionToUpdate عشان ممكن يكونوا غيره فى Id in Request 
+                #region Using Manual Mapping
+                //session.StartDate = updateSessionViewModel.StartDate;
+                //session.EndDate = updateSessionViewModel.EndDate;
+                //session.TrainerId = updateSessionViewModel.TrainerId;
+                //session.Description = updateSessionViewModel.Description; 
+                #endregion
+
+                //using Automapper
+                _Mapper.Map(updateSessionViewModel, session);
+                session!.UpdatedAt = DateTime.Now;
+                _uniteOfWork.GetRepository<Session>()
+                    .Update(session!);
+                return _uniteOfWork.SaveChanges() > 0;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
         }
         //===============================================================================
         #region Helper Method
@@ -178,6 +248,31 @@ namespace GymMangmentsystemBLL.Services.Implementation
         private bool TimeValid(DateTime StartDate,DateTime EndDate)
         {
             return EndDate > StartDate;
+        }
+        private bool IsSessionAvailableToUpdate(Session session)
+        {
+            //مش هينفع اعمل Update For session لو هى Null => No Updating
+            // Session is Started => No Updating
+            //Session is Completed => No updating
+            //Session has Active Booking => No Updating
+            if (session is null) return false;
+            if (session.StartDate<=DateTime.Now) return false;//Session is OnGoing شغالة 
+            if (session.EndDate<DateTime.Now) return false;//Session is Completed 
+            var ActiveBooking = _uniteOfWork.SessionRepository.GetCountOfBookingSlots(session.Id)>0;//لو رجعلى عدد الناس اللى حاجزة علىsession دى يبقى مش هعرف اعملها Update
+            if(ActiveBooking) return false;
+            return true;
+        }
+        private bool ISessionValidToDelete(Session session)
+        {
+            if(session is null) return false;
+            if (session!.StartDate > DateTime.Now)//UpComing
+                return false;
+            if (session.StartDate <= DateTime.Now && 
+                session.EndDate > DateTime.Now)//OnGoing
+                return false;
+            var ActiveBooking = _uniteOfWork.SessionRepository.GetCountOfBookingSlots(session.Id)>0;
+            if (ActiveBooking) return false;
+            return true;
         }
         #endregion
     }

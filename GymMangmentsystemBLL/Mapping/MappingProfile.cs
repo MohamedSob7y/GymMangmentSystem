@@ -49,7 +49,8 @@ namespace GymMangmentsystemBLL.Mapping
             //ةكمان لو فى حاجة مش عارف يحولها بطريقة مباشرة يعنى زى address دى مش هيعرف يجبها بطريقة مباشرة
             //لازم اعلمه فى الحتة دى انما باقى الحجات اللى بيعرف يجبها بطريقة مباشرة على طول فى Manual Mapping => مش هعلمه هو بيعملها بطريقة مباشرة على طول 
             CreateMap<CreateSessionViewModel, Session>();
-           
+            CreateMap<Session, UpdateSessionViewModel>().ReverseMap();
+
         }
         private void MapTrainer()
         {
