@@ -1,9 +1,12 @@
-﻿using GymMangmentSystemDAL.Data.Context;
+﻿using AutoMapper;
+using GymMangmentsystemBLL.Mapping;
+using GymMangmentSystemDAL.Data.Context;
 using GymMangmentSystemDAL.Entities;
 using GymMangmentSystemDAL.Repository.Generic_Repository.Implementation;
 using GymMangmentSystemDAL.Repository.Generic_Repository.Interface;
 using GymMangmentSystemDAL.Repository.Implementation;
 using GymMangmentSystemDAL.Repository.Interface;
+using GymMangmentSystemDAL.Seed_Data;
 using GymMangmentSystemDAL.Unit_Of_Work.Implementation;
 using GymMangmentSystemDAL.Unit_Of_Work.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -68,6 +71,16 @@ namespace GymMangmentSystemPLL
             //ممكن تلاقى UnitofWork implement interface Idisposable 
             #endregion
             //==========================================
+            #region Object From ISessionRepository
+            builder.Services.AddScoped(typeof(ISessionRepository),typeof(SessionRepository));
+            #endregion
+            //==========================================
+            #region Object From IMapper
+            //use AddProfile عشان يعرف يوصل للConfiuration in BLL اللى متعلم فيها انه يحول من object To Object
+            builder.Services.AddAutoMapper(T => T.AddProfile(typeof(IMapper)));
+            //builder.Services.AddAutoMapper(T => T.AddProfile(new MappingProfile())));
+            #endregion
+            //==========================================
             #endregion
             //==========================================
             #region Build + Configuration+ Run application
@@ -89,9 +102,32 @@ namespace GymMangmentSystemPLL
                 pattern: "{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
             //Run Application 
-            app.Run(); 
+            app.Run();
             #endregion
-            
+            //==========================================
+            #region Call Methods Seeding 
+            //امتى محتاج اعمل Seeding or Calling This Method to Seeding Data=> اول ما الapplication بتاعى يستغل وقبل ماسيتقبل اى request 
+
+            //ومش هعرف اخلى Programe inject object from RunTime => لان مش هينفع اعمل Constrcutor هنا فى Main => So make this Manual 
+            //GymDbContext dbContext = new GymDbContext();//مش هبنفع برضو عشان محتاج options لو انا عملته Manual
+            //=================================================================================================================================
+            using var scope =app.Services.CreateScope();//Create Scope that has all Object For Scoped Lifetime
+            //Get object From Scoped وعايز بعد مااجيبه واستخدمه خلاص يمسحه من heap على طول 
+            var dbcontext = scope.ServiceProvider.GetRequiredService<GymDbContext>(); //Servies Providers عارف الاماكن جوه الScope
+            var peningMigration = dbcontext.Database.GetPendingMigrations();//دا يرجعلى كل Migrations اللى لسة متعملهاش appying in Dataabase 
+            if(peningMigration?.Any()??false)//عايز اتاكد ان مفيش اى Changes in application  مسمعتشى فى Database يعنى لازم تاتكد ان كل Migrations اتعملها Update in Database
+            {
+                //لازم تاتكد ان كل التغيرات حصلت فى Database عشان ميحصلشى اى مشكلة 
+                dbcontext.Database.Migrate();
+               //ممكن يكون فى Column IsActive in Table Plans ولسة معملتش التغيير دا فى Database فبالتالى العمود دا مش موجود اصلا وبعدها لوحت عامل seeding For Data for IsActive اللى هو اصلا مش موجود فبالتالى مش هينفع عشان كدة محتاج اتاكد ان كل حاجة سمعت فى dataabase عشان اقدر بعدها اعمل seeding Data for this Tables 
+            }
+            //انا بقا هخلى برضو Clr يعمله بطريقة غير مباشرة تسمى Explicit injections =>يعنى هطلبه منك بشكل صريح وانت تديهونى 
+            //انما Implcicit injecttion Ask CLR to inject onject by Constrcutor بطلبه بس بطريقة غير مباشرة 
+            GymDbcontextSeeding.SeedData(dbcontext);//هنا محتاج object From GymDbContext 
+            //يبقى الفرق بين Implcicit injection  + Explcicit injection=> Implcicit Ask Clr to inject object in Runtime بطلبه منك بطريقة غير مباشرة تعملهولى Automatic
+            //Explciti بطلبه منك بصراحة انك انت برضو اللى تعمله بطريقة Manual Not Automatic 
+
+            #endregion
         }
     }
 }

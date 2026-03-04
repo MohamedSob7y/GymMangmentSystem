@@ -78,8 +78,35 @@ namespace GymMangmentSystemDAL.Repository.Generic_Repository.Implementation
 
         public IEnumerable<T> GetAll() => _gymDbContext.Set<T>().ToList();
 
+        //محتاج اعدل على GetAll عشان كل مرة عايز اجيب session must get TrainerName+CategoryName
         public IEnumerable<T> GetAll(Func<T, bool>? Condition = null)
         {
+            //====================================================
+            #region After Igger Loading
+            //كل مرة بجيب فيها الsession => Get TrainerName+CategoryName
+            //if (typeof(T) is Session)
+            //{
+            //    return (IEnumerable<T>)_gymDbContext.Sessions.Include(T => T.Category).Include(T => T.Trainer).ToList();
+            //}
+            //if (Condition is null)
+            //{
+
+            //    //لو عملتها بالطريقة دى عشان اشتغل على Igger Loading > مش هينفع لانى لازم احدد Type of iclude وانا اصلا عاملها Generic
+            //    //return _gymDbContext.Set<T>().Include().AsNoTracking()
+            //    //   .ToList();
+            //    return _gymDbContext.Set<T>().AsNoTracking()
+            //        .ToList();
+            //}
+            //==========================================================
+            //right Answers
+             //Make Specicif Repository=> ISessionRepository هى بقا اللى بتحتوى على Logic الجديد بتاع GetAll بس مش هينفع اعملها فى Gendeneric لانه هيكون عنده logic ومش هينفع 
+
+            //==========================================================
+            #endregion
+            //====================================================
+            #region Before Igger Loading
+            //دا حل مش كويس ومش احسن حاجة 
+
             if (Condition is null)
             {
                 return _gymDbContext.Set<T>().AsNoTracking()
@@ -91,7 +118,8 @@ namespace GymMangmentSystemDAL.Repository.Generic_Repository.Implementation
                     .ToList();
                 //Use .AsNoTracking() عشان مش محتاج اى حاجة فى Database انا Get From Dstabase عشان كدة مش محتاج Keep Tracking 
                 //AsNoTracking() استخدمها عشان لو هعمل اى حاجة على Database like Create Update Delete كدة لازم اعمل tracking 
-            }
+            } 
+            #endregion
         }
 
         public T? GetById(int id) => _gymDbContext.Set<T>().Find(id);

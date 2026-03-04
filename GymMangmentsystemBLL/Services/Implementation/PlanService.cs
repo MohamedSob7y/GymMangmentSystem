@@ -66,6 +66,7 @@ namespace GymMangmentsystemBLL.Services.Implementation
             var plan = _uniteOfWork.GetRepository<Plan>()
                 .GetById(PlanId);
             if (plan is null) return null;
+            #region Manual Mapping
             return new PlanVM()
             {
                 Name = plan.Name,
@@ -73,7 +74,8 @@ namespace GymMangmentsystemBLL.Services.Implementation
                 DurationDays = plan.DurationDays,
                 Price = plan.Price,
                 Id = plan.Id,//هو بيعمل Hide ليه عادى 
-            };
+            }; 
+            #endregion
 
         }
 
@@ -85,13 +87,15 @@ namespace GymMangmentsystemBLL.Services.Implementation
             var plan = _uniteOfWork.GetRepository<Plan>()
                 .GetById(PlanId);
             if (plan is null || plan.IsActive == false || HasActiveMemberships(PlanId)) return null;
+            #region Manual Mapping
             return new PlanToUpdateVM()
             {
                 PlanName = plan.Name,
                 Price = plan.Price,
                 Description = plan.Description,
                 DurationDays = plan.DurationDays,
-            };
+            }; 
+            #endregion
         }
 
         public bool ToggleStatus(int PlanId)
