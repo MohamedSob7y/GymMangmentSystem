@@ -28,6 +28,7 @@ namespace GymMangmentsystemBLL.Services.Implementation
             //Canot Create Trainer with The Same Email + Phone مش هينفع ادخل Phone + email موجودين بالفعل فى Database 
             if (createTrainerViewModel is null || IsEmailExsist|| IsPhoneExsist)
                 return false;
+            #region Manual Mapping
             var trainer = new Trainer()
             {
                 Name = createTrainerViewModel.Name,
@@ -42,7 +43,8 @@ namespace GymMangmentsystemBLL.Services.Implementation
                     Street = createTrainerViewModel.Street,
                     BuildingNumber = createTrainerViewModel.BuildingNumber,
                 }
-            };
+            }; 
+            #endregion
             try
             {
                 _uniteOfWork.GetRepository<Trainer>()
@@ -84,14 +86,16 @@ namespace GymMangmentsystemBLL.Services.Implementation
                 .GetAll();
             if (Trainers is null||!Trainers.Any())
                 return [];
+            #region Manual Mapping
             return Trainers.Select(T => new TrainerViewModel()
             {
-                Id=T.Id,
-                Name=T.Name,
-                Email=T.Email,
-                Specialities=T.Speciality.ToString(),
-                Phone=T.Phone,
-            });
+                Id = T.Id,
+                Name = T.Name,
+                Email = T.Email,
+                Specialities = T.Speciality.ToString(),
+                Phone = T.Phone,
+            }); 
+            #endregion
         }
 
         public TrainerViewModel? GetTrainerDetails(int TrainerId)
@@ -100,13 +104,15 @@ namespace GymMangmentsystemBLL.Services.Implementation
                    .GetById(TrainerId);
             if(trainer is null) 
                 return null;
+            #region Manual Mapping
             return new TrainerViewModel()
             {
-                Email= trainer.Email,
-                Phone=trainer.Phone,
-                DateOfBirth=trainer.DateofBirth.ToShortDateString(),
-                Address=$"{trainer.Address.BuildingNumber}-{trainer.Address.City}-{trainer.Address.Street}"
-            };
+                Email = trainer.Email,
+                Phone = trainer.Phone,
+                DateOfBirth = trainer.DateofBirth.ToShortDateString(),
+                Address = $"{trainer.Address.BuildingNumber}-{trainer.Address.City}-{trainer.Address.Street}"
+            }; 
+            #endregion
         }
 
         public TrainerToUpdateViewModel? GetTrainerDetailsToUpdate(int TrainerId)
@@ -115,16 +121,18 @@ namespace GymMangmentsystemBLL.Services.Implementation
                   .GetById(TrainerId);
             if (trainer is null)
                 return null;
+            #region Manual Mapping
             return new TrainerToUpdateViewModel()
             {
                 Email = trainer.Email,
                 Phone = trainer.Phone,
-               Name=trainer.Name,
-               Street=trainer.Address.Street,
-               City=trainer.Address.City,
-               BuildingNumber=trainer.Address.BuildingNumber,
-               Specialities=trainer.Speciality,
-            };
+                Name = trainer.Name,
+                Street = trainer.Address.Street,
+                City = trainer.Address.City,
+                BuildingNumber = trainer.Address.BuildingNumber,
+                Specialities = trainer.Speciality,
+            }; 
+            #endregion
         }
 
         public bool UpdateTrainer(int TrainerId, TrainerToUpdateViewModel modelToUpdate)

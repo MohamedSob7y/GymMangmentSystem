@@ -170,6 +170,7 @@ namespace GymMangmentsystemBLL.Services.Implementation
             //var member = _genericRepository.GetById(MemberId);//Before UnitfWork
             var member = _uniteOfWork.GetRepository<Member>().GetById(MemberId);
             if (member is null) return null;
+            #region Manual Mapping
             var memberviewmodel = new MemberViewModel()
             {
                 Name = member.Name,
@@ -207,7 +208,8 @@ namespace GymMangmentsystemBLL.Services.Implementation
 
                 #endregion
                 //==========================================
-            };
+            }; 
+            #endregion
             //==========================================
             #region Solving Problem With PlanName+Memnership
             //عشان اجيب MembershipstartDate+EndDate لازم اعمل Query على table Membership

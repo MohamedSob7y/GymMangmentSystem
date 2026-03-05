@@ -21,7 +21,11 @@ namespace GymMangmentSystemDAL.Unit_Of_Work.Interface
         #endregion
         //========================================
         #region New Implementation
-        //نفس Constrain InGEneric Repository 
+        //For Object From IsessionRepository
+        public ISessionRepository SessionRepository { get;  }
+
+
+        //نفس Constrain InGeneric Repository 
         IGenericRepository<T> GetRepository<T>()where T:BaseEntity,new();
         public int SaveChanges(); 
         //عشان اعمل Save Changes مرة واحدة فقط

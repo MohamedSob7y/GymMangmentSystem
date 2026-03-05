@@ -33,10 +33,16 @@ namespace GymMangmentSystemDAL.Unit_Of_Work.Implementation
         //Value => New Generic Repository اللى هو object  => Values From Type Object
         private readonly GymDbContext _gymDbContext;
         //انا معلم CLr To inject object from DbContext
-        public UniteOfWork(GymDbContext gymDbContext)
+        public UniteOfWork(GymDbContext gymDbContext,ISessionRepository sessionRepository)
         {
             _gymDbContext = gymDbContext;
+            SessionRepository= sessionRepository;
         }
+
+        public ISessionRepository SessionRepository { get; }
+
+      
+
         public IGenericRepository<T> GetRepository<T>() where T : BaseEntity, new()
         {
             #region Way 01
@@ -71,6 +77,8 @@ namespace GymMangmentSystemDAL.Unit_Of_Work.Implementation
            return _gymDbContext.SaveChanges();
             //لازم بقا اشيل Savechanges from Generic Repo عشان الChanges عايزها يتم من دى مش من هنالك هنالك هيتم Local 
         }
+
+      
 
         #endregion
 
