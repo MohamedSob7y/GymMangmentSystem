@@ -1,10 +1,12 @@
-﻿using GymMangmentsystemBLL.Services.Interface;
+﻿using AutoMapper;
+using GymMangmentsystemBLL.Services.Interface;
 using GymMangmentsystemBLL.View_Models.Plan_View_Model;
 using GymMangmentSystemDAL.Entities;
 using GymMangmentSystemDAL.Unit_Of_Work.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,10 +16,13 @@ namespace GymMangmentsystemBLL.Services.Implementation
     {
         private readonly IUniteOfWork _uniteOfWork;
 
-        public PlanService(IUniteOfWork uniteOfWork)
+        public PlanService(IUniteOfWork uniteOfWork,IMapper mapper)
         {
             _uniteOfWork = uniteOfWork;
+            _Mapper = mapper;
         }
+
+        public IMapper _Mapper { get; }
 
         public IEnumerable<PlanVM> GetAllPlans()
         {
@@ -47,17 +52,22 @@ namespace GymMangmentsystemBLL.Services.Implementation
             #endregion
             //================================================
             #region Second Mapping
-            var planviewmodel = plans.Select(T => new PlanVM()
-            {
-                Name = T.Name,
-                Description = T.Description,
-                DurationDays = T.DurationDays,
-                Id = T.Id,
-                Price = T.Price,
-            });
-            return planviewmodel;
-            #endregion 
+            //var planviewmodel = plans.Select(T => new PlanVM()
+            //{
+            //    Name = T.Name,
+            //    Description = T.Description,
+            //    DurationDays = T.DurationDays,
+            //    Id = T.Id,
+            //    Price = T.Price,
+            //});
+            //return planviewmodel;
+            #endregion
             //================================================
+            #endregion
+            //================================================
+            #region Automatic Mapping
+
+            return _Mapper.Map<IEnumerable<Plan>,IEnumerable<PlanVM>>(plans);
             #endregion
         }
 
@@ -67,14 +77,19 @@ namespace GymMangmentsystemBLL.Services.Implementation
                 .GetById(PlanId);
             if (plan is null) return null;
             #region Manual Mapping
-            return new PlanVM()
-            {
-                Name = plan.Name,
-                Description = plan.Description,
-                DurationDays = plan.DurationDays,
-                Price = plan.Price,
-                Id = plan.Id,//هو بيعمل Hide ليه عادى 
-            }; 
+            //return new PlanVM()
+            //{
+            //    Name = plan.Name,
+            //    Description = plan.Description,
+            //    DurationDays = plan.DurationDays,
+            //    Price = plan.Price,
+            //    Id = plan.Id,//هو بيعمل Hide ليه عادى 
+            //};
+            #endregion
+            //================================================
+            #region Automatic Mapping
+
+            return _Mapper.Map<Plan, PlanVM>(plan);
             #endregion
 
         }
@@ -88,13 +103,18 @@ namespace GymMangmentsystemBLL.Services.Implementation
                 .GetById(PlanId);
             if (plan is null || plan.IsActive == false || HasActiveMemberships(PlanId)) return null;
             #region Manual Mapping
-            return new PlanToUpdateVM()
-            {
-                PlanName = plan.Name,
-                Price = plan.Price,
-                Description = plan.Description,
-                DurationDays = plan.DurationDays,
-            }; 
+            //return new PlanToUpdateVM()
+            //{
+            //    PlanName = plan.Name,
+            //    Price = plan.Price,
+            //    Description = plan.Description,
+            //    DurationDays = plan.DurationDays,
+            //};
+            #endregion
+            //=====================================
+            #region Automatic Mapping
+
+            return _Mapper.Map<Plan,PlanToUpdateVM>(plan);
             #endregion
         }
 
@@ -128,6 +148,8 @@ namespace GymMangmentsystemBLL.Services.Implementation
                  .GetById(PlanId);
             //Object PlanVM هو اللى فيه فوق كل Validation بدل مااعملها تانى خت الObject وخلاص 
             if (plan is null||planVM is null) return false;
+            //=======================================================
+            #region Manaul Mapping
             #region Way 01
             //plan.Name = planVM.PlanName;
             //plan.Description = planVM.Description;
@@ -136,12 +158,16 @@ namespace GymMangmentsystemBLL.Services.Implementation
             #endregion
             //===========================================
             #region Way Using Tuple
-            (plan.Name, plan.Description, plan.DurationDays, plan.Price) =
-                (planVM.PlanName, planVM.Description, planVM.DurationDays, planVM.Price);
-
+            //(plan.Name, plan.Description, plan.DurationDays, plan.Price) =
+            //    (planVM.PlanName, planVM.Description, planVM.DurationDays, planVM.Price);
             #endregion
             //===========================================
-            plan.UpdatedAt = DateTime.Now;
+            //plan.UpdatedAt = DateTime.Now; 
+            #endregion
+            //=======================================================
+            #region Automatic Mapping
+            _Mapper.Map(planVM, plan);
+            #endregion
 
             try
             {

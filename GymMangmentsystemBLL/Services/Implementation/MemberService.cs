@@ -1,4 +1,5 @@
-﻿using GymMangmentsystemBLL.Services.Interface;
+﻿using AutoMapper;
+using GymMangmentsystemBLL.Services.Interface;
 using GymMangmentsystemBLL.View_Models.Member_View_Model;
 using GymMangmentSystemDAL.Entities;
 using GymMangmentSystemDAL.Repository.Generic_Repository.Implementation;
@@ -47,10 +48,14 @@ namespace GymMangmentsystemBLL.Services.Implementation
         //=====================================================
         #region  Object From  unite Of Work
         private readonly IUniteOfWork _uniteOfWork;
+
+        public IMapper _Mapper { get; }
+
         //Ask CLR To inject object in Runtime from any class implement interface Iuniteofwork
-        public MemberService(IUniteOfWork uniteOfWork)
+        public MemberService(IUniteOfWork uniteOfWork,IMapper mapper)
         {
             _uniteOfWork = uniteOfWork;
+            _Mapper = mapper;
         }
         #endregion
         //=====================================================
@@ -87,21 +92,27 @@ namespace GymMangmentsystemBLL.Services.Implementation
             //====================================
             #region Way Two For Manual Mapping
             //Manual Mapping  
-            var memberviewmodel = members.Select(T => new MemberViewModel
-            {
-                Id = T.Id,
-                Name = T.Name,
-                Email = T.Email,
-                Phone = T.Phone,
-                Photo = T.Photo,
-                Gender = T.Gender.ToString()
-            });
-            return memberviewmodel;
+            //var memberviewmodel = members.Select(T => new MemberViewModel
+            //{
+            //    Id = T.Id,
+            //    Name = T.Name,
+            //    Email = T.Email,
+            //    Phone = T.Phone,
+            //    Photo = T.Photo,
+            //    Gender = T.Gender.ToString()
+            //});
+            //return memberviewmodel;
 
             #endregion
             //====================================
             #endregion
             //===========================================
+            #region Automatic Mapping
+            //المفروض كله يجى مباشرة بس Gender اعمله عشان يحولها الى tostring 
+            //as Id+Name+Email+Photo+Phone+Gender كلهم موجودين فى Table Member عشان كدة كلهم مباشريين
+            return _Mapper.Map<IEnumerable<Member>,IEnumerable<MemberViewModel>>(members);
+           
+            #endregion
         }
         //=====================================================
         public bool Create(CreateMember Member)
@@ -122,33 +133,39 @@ namespace GymMangmentsystemBLL.Services.Implementation
                 #endregion
                 //=====================================================
                 #region Manual Mapping
-                var memberviewmodel = new Member()
-                {
-                    Name = Member.Name,
-                    Email = Member.Email,
-                    Phone = Member.Phone,
-                    Gender = Member.Gender,
-                    DateofBirth = Member.DateOfBirth,
-                    //Address + HealthRecord are Navigation Property
-                    Address = new Address()
-                    {
-                        BuildingNumber = Member.BuildingNumber,
-                        City = Member.City,
-                        Street = Member.Street,
-                    },
-                    HealthRecord = new HealthRecord()
-                    {
-                        Height = Member.HealthRecord.Height,
-                        Weight = Member.HealthRecord.Weight,
-                        Note = Member.HealthRecord.Note,
-                        BloodType = Member.HealthRecord.BloodType,
-                    }
-                };
+                //var memberviewmodel = new Member()
+                //{
+                //    Name = Member.Name,
+                //    Email = Member.Email,
+                //    Phone = Member.Phone,
+                //    Gender = Member.Gender,
+                //    DateofBirth = Member.DateOfBirth,
+                //    //Address + HealthRecord are Navigation Property
+                //    Address = new Address()
+                //    {
+                //        BuildingNumber = Member.BuildingNumber,
+                //        City = Member.City,
+                //        Street = Member.Street,
+                //    },
+                //    HealthRecord = new HealthRecord()
+                //    {
+                //        Height = Member.HealthRecord.Height,
+                //        Weight = Member.HealthRecord.Weight,
+                //        Note = Member.HealthRecord.Note,
+                //        BloodType = Member.HealthRecord.BloodType,
+                //    }
+                //};
             #endregion
             //=====================================================
             //return _genericRepository.Add(memberviewmodel) > 0; //Before unite ofWork
             //as Add return Int عشان كدة عملتها >0
-
+            //=====================================================
+            #region Automatic Mapping
+            //كلهم مباشرين معادا Address + HealthRecord
+            //Name+Email+Phone+Photo
+            var memberviewmodel=_Mapper.Map<CreateMember,Member>(Member);
+            #endregion
+            //=====================================================
             //After Unite Of Work
             try
             {
@@ -171,44 +188,50 @@ namespace GymMangmentsystemBLL.Services.Implementation
             var member = _uniteOfWork.GetRepository<Member>().GetById(MemberId);
             if (member is null) return null;
             #region Manual Mapping
-            var memberviewmodel = new MemberViewModel()
-            {
-                Name = member.Name,
-                Email = member.Email,
-                Gender = member.Gender.ToString(),
-                DateOfBirth = member.DateofBirth.ToShortDateString(),
-                Phone = member.Phone,
-                Photo = member.Photo,
-                Address = $"{member.Address.BuildingNumber}-{member.Address.City}-{member.Address.Street}",
-                //عملت الaddress بالطريقة دى عشان انا اصلا عامله string Property 
-                //لو عامله Navigation Property or Any Type ساعتها لازم اعمله by this Way
-                /*
-                  Address=new Address()
-                {
-                    BuildingNumber=Member.BuildingNumber,
-                    City=Member.City,
-                    Street=Member.Street,   
-                },
-                 */
-                //==========================================
-                #region Problem 
-                //دول كدة عرفت ارجعهم عشان موجودين فى نفس classMember but 
-                //PlanName + MembershipStartDate+MembershipEndate مش موجودين فى class Member بالتالى مش هعرف ارجعهم بالطريقة دى لازم اعمل Query on Table Membership+Plan To Get Data From This Table And return it 
+            //var memberviewmodel = new MemberViewModel()
+            //{
+            //    Name = member.Name,
+            //    Email = member.Email,
+            //    Gender = member.Gender.ToString(),
+            //    DateOfBirth = member.DateofBirth.ToShortDateString(),
+            //    Phone = member.Phone,
+            //    Photo = member.Photo,
+            //    Address = $"{member.Address.BuildingNumber}-{member.Address.City}-{member.Address.Street}",
+            //    //عملت الaddress بالطريقة دى عشان انا اصلا عامله string Property 
+            //    //لو عامله Navigation Property or Any Type ساعتها لازم اعمله by this Way
+            //    /*
+            //      Address=new Address()
+            //    {
+            //        BuildingNumber=Member.BuildingNumber,
+            //        City=Member.City,
+            //        Street=Member.Street,   
+            //    },
+            //     */
+            //    //==========================================
+            //    #region Problem 
+            //    //دول كدة عرفت ارجعهم عشان موجودين فى نفس classMember but 
+            //    //PlanName + MembershipStartDate+MembershipEndate مش موجودين فى class Member بالتالى مش هعرف ارجعهم بالطريقة دى لازم اعمل Query on Table Membership+Plan To Get Data From This Table And return it 
 
-                // MembershipStartDate = member.Memberships.FirstOrDefault(T=>T.Status=="Active")?
-                //.CreatedAt.ToShortDateString()
-
-
-                //مشكلة الطريقة دى اية؟
-                //Data Not Loaded => حتى لو عملت include 
-                // include with Igger Loading شغالى مع Querable
-                //So عشان كدة لازم اعمل change in GetAll + GetById احط include انى احمل Membership
+            //    // MembershipStartDate = member.Memberships.FirstOrDefault(T=>T.Status=="Active")?
+            //    //.CreatedAt.ToShortDateString()
 
 
+            //    //مشكلة الطريقة دى اية؟
+            //    //Data Not Loaded => حتى لو عملت include 
+            //    // include with Igger Loading شغالى مع Querable
+            //    //So عشان كدة لازم اعمل change in GetAll + GetById احط include انى احمل Membership
 
-                #endregion
-                //==========================================
-            }; 
+
+
+            //    #endregion
+            //    //==========================================
+            //};
+            #endregion
+            //==========================================
+            #region Automatic Mapping
+            //كله مباشر ماعدا حتى الaddress اعملها عادى بالطريقة بتاعته من غير VM
+            //كمان فى DatOfBirth اللى بيحوله الى ToShortDateString  ولو معلمتهوش يحولها هيحولها الى tostring مشToShortDateString فلازم اعلمه  
+            var memberviewmodel =_Mapper.Map<Member, MemberViewModel>(member);
             #endregion
             //==========================================
             #region Solving Problem With PlanName+Memnership
@@ -263,18 +286,17 @@ namespace GymMangmentsystemBLL.Services.Implementation
             if (memberhealthrecord is null) return null;
             //=====================================
             #region Manual Mapping
-            return new HealthRecordViewmodel()
-            {
-                Height = memberhealthrecord.Height,
-                Weight = memberhealthrecord.Weight,
-                BloodType = memberhealthrecord.BloodType,
-                Note = memberhealthrecord.Note,
-            };
+            //return new HealthRecordViewmodel()
+            //{
+            //    Height = memberhealthrecord.Height,
+            //    Weight = memberhealthrecord.Weight,
+            //    BloodType = memberhealthrecord.BloodType,
+            //    Note = memberhealthrecord.Note,
+            //};
             #endregion
             //=====================================
             #region Automatic Mapping
-
-
+            return _Mapper.Map<HealthRecord,HealthRecordViewmodel>(memberhealthrecord);
             #endregion
             //=====================================
             #endregion
@@ -287,16 +309,20 @@ namespace GymMangmentsystemBLL.Services.Implementation
             var member = _uniteOfWork.GetRepository<Member>().GetById(MemberId);
             if (member is null) return null;
             #region Manual Mapping
-            return new MemberToUpdateViewModel()
-            {
-                Name = member.Name,
-                Email = member.Email,
-                Phone = member.Phone,
-                Photo = member.Photo,
-                BuildingNumber = member.Address.BuildingNumber,
-                City = member.Address.City,
-                Street = member.Address.Street,
-            };
+            //return new MemberToUpdateViewModel()
+            //{
+            //    Name = member.Name,
+            //    Email = member.Email,
+            //    Phone = member.Phone,
+            //    Photo = member.Photo,
+            //    BuildingNumber = member.Address.BuildingNumber,
+            //    City = member.Address.City,
+            //    Street = member.Address.Street,
+            //};
+            #endregion
+            //==========================
+            #region Automatic Mapping
+            return _Mapper.Map<Member,MemberToUpdateViewModel>(member);
             #endregion
         }
 
@@ -323,21 +349,28 @@ namespace GymMangmentsystemBLL.Services.Implementation
                 //var member = _genericRepository.GetById(MemberId);//Before UnitOfWork
                 var member = _uniteOfWork.GetRepository<Member>().GetById(MemberId);
                 if (member is null) return false;
-                member.Name = memberToUpdateViewModel.Name;
-                //والله لو عدل على Name خلاص save changes 
-                //لو معملشى اى تعديل خلاص هات القيمة القديمة من database 
-                member.Email = memberToUpdateViewModel.Email;
-                member.Phone = memberToUpdateViewModel.Phone;
-                member.Photo = memberToUpdateViewModel.Photo;
-                member.Address.BuildingNumber = memberToUpdateViewModel.BuildingNumber;
-                member.Address.City = memberToUpdateViewModel.City;
-                member.Address.Street = memberToUpdateViewModel.Street;
-                member.UpdatedAt = DateTime.Now;
+                //==============================================
+                #region Manual Mapping
+                //member.Name = memberToUpdateViewModel.Name;
+                ////والله لو عدل على Name خلاص save changes 
+                ////لو معملشى اى تعديل خلاص هات القيمة القديمة من database 
+                //member.Email = memberToUpdateViewModel.Email;
+                //member.Phone = memberToUpdateViewModel.Phone;
+                //member.Photo = memberToUpdateViewModel.Photo;
+                //member.Address.BuildingNumber = memberToUpdateViewModel.BuildingNumber;
+                //member.Address.City = memberToUpdateViewModel.City;
+                //member.Address.Street = memberToUpdateViewModel.Street;
+                //member.UpdatedAt = DateTime.Now;
                 //return _genericRepository.Update(member) > 0;//Before UnitOfWork
                 //as Update return int عشان كدة عملتها >0
                 //لو عدد الRow حصلها affected >0 return true
-                //For Any Transcation => Must Make TryCatch
-                
+                //For Any Transcation => Must Make TryCatch 
+                #endregion
+                //==============================================
+                #region Automatic Mapping
+                _Mapper.Map(memberToUpdateViewModel, member);
+                #endregion
+                //==============================================
                 _uniteOfWork.GetRepository<Member>()
                     .Update(member);
                 return _uniteOfWork.SaveChanges()>0;
