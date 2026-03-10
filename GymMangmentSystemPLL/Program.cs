@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using GymMangmentsystemBLL.Mapping;
+using GymMangmentsystemBLL.Services.Implementation;
+using GymMangmentsystemBLL.Services.Interface;
 using GymMangmentSystemDAL.Data.Context;
 using GymMangmentSystemDAL.Entities;
 using GymMangmentSystemDAL.Repository.Generic_Repository.Implementation;
@@ -79,6 +81,10 @@ namespace GymMangmentSystemPLL
             //use AddProfile عشان يعرف يوصل للConfiuration in BLL اللى متعلم فيها انه يحول من object To Object
             builder.Services.AddAutoMapper(T => T.AddProfile(typeof(IMapper)));
             //builder.Services.AddAutoMapper(T => T.AddProfile(new MappingProfile())));
+            #endregion
+            //==========================================
+            #region Object From IAnalytic Service
+            builder.Services.AddScoped<IAnalyticsService,AnalyticsService>();
             #endregion
             //==========================================
             #endregion
