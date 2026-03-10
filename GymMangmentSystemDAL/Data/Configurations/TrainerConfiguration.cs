@@ -19,9 +19,10 @@ namespace GymMangmentSystemDAL.Data.Configurations
                 HasDefaultValueSql("Getdate()");
             //==============================================================
             //Relathion Using Fluent APi
-            builder.HasMany<Session>()
-                    .WithOne(T => T.Trainer)
-                    .HasForeignKey(T => T.TrainerId).OnDelete(DeleteBehavior.NoAction); ;
+            builder.HasMany(t => t.Sessions)
+                  .WithOne(s => s.Trainer)
+                  .HasForeignKey(s => s.TrainerId)
+                  .OnDelete(DeleteBehavior.NoAction);
 
 
         }

@@ -13,15 +13,29 @@ namespace GymMangmentSystemDAL.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<HealthRecord> builder)
         {
-            builder.ToTable("Members").HasKey(T=>T.Id);
-            builder.HasOne<Member>()
-                .WithOne(T => T.HealthRecord)
-                .HasForeignKey<HealthRecord>(T => T.Id);
+            //builder.ToTable("Members").HasKey(T => T.Id);
+            //builder.HasOne<Member>()
+            //    .WithOne(T => T.HealthRecord)
+            //    .HasForeignKey<HealthRecord>(T => T.Id);
+            builder.ToTable("Members");
+
+            builder.HasKey(h => h.Id);
+
+            builder.HasOne(h => h.Member)
+                   .WithOne(m => m.HealthRecord)
+                   .HasForeignKey<HealthRecord>(h => h.Id);
+
+            builder.Property(h => h.Height)
+                   .HasPrecision(5, 2);
+
+            builder.Property(h => h.Weight)
+                   .HasPrecision(5, 2);
+
 
             #region Problem While Adding Migration
             //لما عملى فايل الMigration كان منزل createdAt + JoinDate المفروض ينزلها مرة واحدة بتغيير اسمها انما هنا نزل الاتنين دا المشكلة 
             //HealthRecord بيورث من Base Entity انا المفروض انزلها بتغيير اسمها انما عمل كدة عشان انا كنت عامل واحدة جديدة باسم JoinData + انه نزل اللى Created At أللى وريثتها من Base Entityt
-            builder.Ignore(T => T.CreatedAt); 
+            builder.Ignore(T => T.CreatedAt);
             #endregion
         }
     }
