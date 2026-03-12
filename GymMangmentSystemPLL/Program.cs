@@ -79,12 +79,16 @@ namespace GymMangmentSystemPLL
             //==========================================
             #region Object From IMapper
             //use AddProfile عشان يعرف يوصل للConfiuration in BLL اللى متعلم فيها انه يحول من object To Object
-            builder.Services.AddAutoMapper(T => T.AddProfile(typeof(IMapper)));
+            builder.Services.AddAutoMapper(T => T.AddProfile(typeof(MappingProfile)));
             //builder.Services.AddAutoMapper(T => T.AddProfile(new MappingProfile())));
             #endregion
             //==========================================
             #region Object From IAnalytic Service
             builder.Services.AddScoped<IAnalyticsService,AnalyticsService>();
+            #endregion
+            //==========================================
+            #region Object From IMemberService
+            builder.Services.AddScoped<IMemberServices, MemberService>();
             #endregion
             //==========================================
             #endregion

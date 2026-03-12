@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using GymMangmentsystemBLL.Services.Interface;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GymMangmentSystemPL.Controllers
 {
@@ -21,6 +22,36 @@ namespace GymMangmentSystemPL.Controllers
         //{
         //    return View();
         //} 
+        #endregion
+        //========================================================
+        #region All Actions
+        private readonly IMemberServices _memberServices;
+        public MemberController(IMemberServices memberServices)
+        {
+            _memberServices = memberServices;
+        }
+        //1: Action Index => GetAllMembers From Database ولازم يكون معايا id عشان ابقى اعمله Edite+Remove 
+        public ActionResult Index()
+        {
+            var members = _memberServices.GetallMembers();
+            return View(members);
+        }
+        //Action Get Details=>baseurl/Member/MemberDetails/Id 
+        public ActionResult MemberDetails(int Id)
+        {
+            //Validation Id
+            if (Id <= 0)
+                //Error وهرجع نفس الصفحة اللى انا كنت عليها اللى هى GetallMember
+                return RedirectToAction(nameof(Index));
+            
+                var member = _memberServices.GetMemberDetails(Id);
+                if (member is null)
+                  return RedirectToAction(nameof(Index));
+                
+               
+                return View(member);   
+        }
+
         #endregion
     }
 }
