@@ -36,7 +36,7 @@ namespace GymMangmentSystemPL.Controllers
             var members = _memberServices.GetallMembers();
             return View(members);
         }
-        //Action Get Details=>baseurl/Member/MemberDetails/Id 
+        //Action Get Details=>baseurl/Member/MemberDetails/Id => Take Id From Route
         public ActionResult MemberDetails(int Id)
         {
             //Validation Id
@@ -51,7 +51,18 @@ namespace GymMangmentSystemPL.Controllers
                
                 return View(member);   
         }
-
+        //Take Id From Route
+        public ActionResult HealthRecordDetails(int Id)
+        {
+            if(Id<=0)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            var healthrecord=_memberServices.GetMemberHealthDetails(Id);
+            if(healthrecord is null)
+                return RedirectToAction(nameof(Index));
+            return View(healthrecord);
+        }
         #endregion
     }
 }
