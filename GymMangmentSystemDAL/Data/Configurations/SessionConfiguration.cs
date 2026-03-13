@@ -15,7 +15,7 @@ namespace GymMangmentSystemDAL.Data.Configurations
         {
             builder.ToTable(T =>
             {
-                T.HasCheckConstraint("CapacityConstrain", "Capacity between 1 an 25");
+                T.HasCheckConstraint("CapacityConstrain", "Capacity between 1 and 25");
                 T.HasCheckConstraint("DateConstrain", "EndDate>StartDate");
             });
         }

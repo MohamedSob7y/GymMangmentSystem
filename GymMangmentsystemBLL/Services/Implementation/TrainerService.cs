@@ -1,4 +1,5 @@
-﻿using GymMangmentsystemBLL.Services.Interface;
+﻿using AutoMapper;
+using GymMangmentsystemBLL.Services.Interface;
 using GymMangmentsystemBLL.View_Models.Trainer_View_Model;
 using GymMangmentSystemDAL.Entities;
 using GymMangmentSystemDAL.Unit_Of_Work.Interface;
@@ -14,10 +15,13 @@ namespace GymMangmentsystemBLL.Services.Implementation
     {
         private readonly IUniteOfWork _uniteOfWork;
 
-        public TrainerService(IUniteOfWork uniteOfWork)
+        public TrainerService(IUniteOfWork uniteOfWork,IMapper mapper)
         {
             _uniteOfWork = uniteOfWork;
+            _Mapper = mapper;
         }
+
+        public IMapper _Mapper { get; }
 
         public bool CreateTrainer(CreateTrainerViewModel createTrainerViewModel)
         {
@@ -28,23 +32,29 @@ namespace GymMangmentsystemBLL.Services.Implementation
             //Canot Create Trainer with The Same Email + Phone مش هينفع ادخل Phone + email موجودين بالفعل فى Database 
             if (createTrainerViewModel is null || IsEmailExsist|| IsPhoneExsist)
                 return false;
+            //=======================================
             #region Manual Mapping
-            var trainer = new Trainer()
-            {
-                Name = createTrainerViewModel.Name,
-                Email = createTrainerViewModel.Email,
-                Phone = createTrainerViewModel.Phone,
-                Gender = createTrainerViewModel.Gender,
-                DateofBirth = createTrainerViewModel.DateOfBirth,
-                Speciality = createTrainerViewModel.Specialities,
-                Address = new Address
-                {
-                    City = createTrainerViewModel.City,
-                    Street = createTrainerViewModel.Street,
-                    BuildingNumber = createTrainerViewModel.BuildingNumber,
-                }
-            }; 
+            //var trainer = new Trainer()
+            //{
+            //    Name = createTrainerViewModel.Name,
+            //    Email = createTrainerViewModel.Email,
+            //    Phone = createTrainerViewModel.Phone,
+            //    Gender = createTrainerViewModel.Gender,
+            //    DateofBirth = createTrainerViewModel.DateOfBirth,
+            //    Speciality = createTrainerViewModel.Specialities,
+            //    Address = new Address
+            //    {
+            //        City = createTrainerViewModel.City,
+            //        Street = createTrainerViewModel.Street,
+            //        BuildingNumber = createTrainerViewModel.BuildingNumber,
+            //    }
+            //};
             #endregion
+            //=======================================
+            #region Automatic Mapping
+            var trainer=_Mapper.Map<CreateTrainerViewModel,Trainer>(createTrainerViewModel);
+            #endregion
+            //=======================================
             try
             {
                 _uniteOfWork.GetRepository<Trainer>()
@@ -87,14 +97,18 @@ namespace GymMangmentsystemBLL.Services.Implementation
             if (Trainers is null||!Trainers.Any())
                 return [];
             #region Manual Mapping
-            return Trainers.Select(T => new TrainerViewModel()
-            {
-                Id = T.Id,
-                Name = T.Name,
-                Email = T.Email,
-                Specialities = T.Speciality.ToString(),
-                Phone = T.Phone,
-            }); 
+            //return Trainers.Select(T => new TrainerViewModel()
+            //{
+            //    Id = T.Id,
+            //    Name = T.Name,
+            //    Email = T.Email,
+            //    Specialities = T.Speciality.ToString(),
+            //    Phone = T.Phone,
+            //});
+            #endregion
+            //==============================
+            #region Automatic Mapping
+            return _Mapper.Map<IEnumerable<Trainer>,IEnumerable<TrainerViewModel>>(Trainers);
             #endregion
         }
 
@@ -105,13 +119,18 @@ namespace GymMangmentsystemBLL.Services.Implementation
             if(trainer is null) 
                 return null;
             #region Manual Mapping
-            return new TrainerViewModel()
-            {
-                Email = trainer.Email,
-                Phone = trainer.Phone,
-                DateOfBirth = trainer.DateofBirth.ToShortDateString(),
-                Address = $"{trainer.Address.BuildingNumber}-{trainer.Address.City}-{trainer.Address.Street}"
-            }; 
+            //return new TrainerViewModel()
+            //{
+            //    Email = trainer.Email,
+            //    Phone = trainer.Phone,
+            //    DateOfBirth = trainer.DateofBirth.ToShortDateString(),
+            //    Address = $"{trainer.Address.BuildingNumber}-{trainer.Address.City}-{trainer.Address.Street}"
+            //};
+            #endregion
+            //===================================================
+            #region Automatic Mapping
+            return _Mapper?.Map<Trainer,TrainerViewModel>(trainer);
+
             #endregion
         }
 
@@ -122,16 +141,21 @@ namespace GymMangmentsystemBLL.Services.Implementation
             if (trainer is null)
                 return null;
             #region Manual Mapping
-            return new TrainerToUpdateViewModel()
-            {
-                Email = trainer.Email,
-                Phone = trainer.Phone,
-                Name = trainer.Name,
-                Street = trainer.Address.Street,
-                City = trainer.Address.City,
-                BuildingNumber = trainer.Address.BuildingNumber,
-                Specialities = trainer.Speciality,
-            }; 
+            //return new TrainerToUpdateViewModel()
+            //{
+            //    Email = trainer.Email,
+            //    Phone = trainer.Phone,
+            //    Name = trainer.Name,
+            //    Street = trainer.Address.Street,
+            //    City = trainer.Address.City,
+            //    BuildingNumber = trainer.Address.BuildingNumber,
+            //    Specialities = trainer.Speciality,
+            //};
+            #endregion
+            //=====================================
+            #region Automatic Mapping
+
+            return _Mapper.Map<Trainer,TrainerToUpdateViewModel>(trainer);
             #endregion
         }
 
@@ -146,19 +170,27 @@ namespace GymMangmentsystemBLL.Services.Implementation
 
             if(EmailExsist || PhoneExsist||modelToUpdate is null)
                 return false;
-            trainer.Name = modelToUpdate.Name;
-            trainer.Email = modelToUpdate.Email;
-            trainer.Phone = modelToUpdate.Phone;
-            trainer.Address.City = modelToUpdate.City;
-            trainer.Address.Street = modelToUpdate.Street;
-            trainer.Address.BuildingNumber = modelToUpdate.BuildingNumber;
-            trainer.Speciality = modelToUpdate.Specialities;
-            trainer.UpdatedAt= DateTime.Now;
+            //==================================
+            #region Manaul Mapping
+            //trainer.Name = modelToUpdate.Name;
+            //trainer.Email = modelToUpdate.Email;
+            //trainer.Phone = modelToUpdate.Phone;
+            //trainer.Address.City = modelToUpdate.City;
+            //trainer.Address.Street = modelToUpdate.Street;
+            //trainer.Address.BuildingNumber = modelToUpdate.BuildingNumber;
+            //trainer.Speciality = modelToUpdate.Specialities;
+            //trainer.UpdatedAt= DateTime.Now; 
+            #endregion
+            //==================================
+            #region Automatic Mapping
+            _Mapper.Map(modelToUpdate, trainer);
+
+            #endregion
 
             try
             {
                 _uniteOfWork.GetRepository<Trainer>()
-                     .Update(trainer);
+                     .Update(trainer!);
                 return _uniteOfWork.SaveChanges() > 0;
             }
             catch (Exception)

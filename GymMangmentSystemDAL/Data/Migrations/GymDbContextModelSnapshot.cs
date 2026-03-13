@@ -56,10 +56,8 @@ namespace GymMangmentSystemDAL.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Height")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("MemberId")
-                        .HasColumnType("int");
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
 
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
@@ -69,11 +67,10 @@ namespace GymMangmentSystemDAL.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("Weight")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("MemberId");
 
                     b.ToTable("Members", (string)null);
                 });
@@ -260,9 +257,6 @@ namespace GymMangmentSystemDAL.Data.Migrations
                     b.Property<int>("TrainerId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TrainerId1")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -272,11 +266,9 @@ namespace GymMangmentSystemDAL.Data.Migrations
 
                     b.HasIndex("TrainerId");
 
-                    b.HasIndex("TrainerId1");
-
                     b.ToTable("Sessions", t =>
                         {
-                            t.HasCheckConstraint("CapacityConstrain", "Capacity between 1 an 25");
+                            t.HasCheckConstraint("CapacityConstrain", "Capacity between 1 and 25");
 
                             t.HasCheckConstraint("DateConstrain", "EndDate>StartDate");
                         });
@@ -343,15 +335,9 @@ namespace GymMangmentSystemDAL.Data.Migrations
 
             modelBuilder.Entity("GymMangmentSystemDAL.Entities.HealthRecord", b =>
                 {
-                    b.HasOne("GymMangmentSystemDAL.Entities.Member", null)
+                    b.HasOne("GymMangmentSystemDAL.Entities.Member", "Member")
                         .WithOne("HealthRecord")
                         .HasForeignKey("GymMangmentSystemDAL.Entities.HealthRecord", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GymMangmentSystemDAL.Entities.Member", "Member")
-                        .WithMany()
-                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -393,13 +379,13 @@ namespace GymMangmentSystemDAL.Data.Migrations
                     b.HasOne("GymMangmentSystemDAL.Entities.Member", "Member")
                         .WithMany("MemberSessions")
                         .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("GymMangmentSystemDAL.Entities.Session", "Session")
                         .WithMany("MemberSessions")
                         .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Member");
@@ -412,13 +398,13 @@ namespace GymMangmentSystemDAL.Data.Migrations
                     b.HasOne("GymMangmentSystemDAL.Entities.Member", "Member")
                         .WithMany("Memberships")
                         .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("GymMangmentSystemDAL.Entities.Plan", "Plan")
                         .WithMany("Memberships")
                         .HasForeignKey("PlanId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Member");
@@ -435,14 +421,10 @@ namespace GymMangmentSystemDAL.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("GymMangmentSystemDAL.Entities.Trainer", "Trainer")
-                        .WithMany()
+                        .WithMany("Sessions")
                         .HasForeignKey("TrainerId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.HasOne("GymMangmentSystemDAL.Entities.Trainer", null)
-                        .WithMany("Sessions")
-                        .HasForeignKey("TrainerId1");
 
                     b.Navigation("Category");
 

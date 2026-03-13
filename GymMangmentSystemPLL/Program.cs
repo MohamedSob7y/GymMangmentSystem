@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using GymMangmentsystemBLL.Mapping;
+using GymMangmentsystemBLL.Services.Implementation;
+using GymMangmentsystemBLL.Services.Interface;
 using GymMangmentSystemDAL.Data.Context;
 using GymMangmentSystemDAL.Entities;
 using GymMangmentSystemDAL.Repository.Generic_Repository.Implementation;
@@ -77,8 +79,16 @@ namespace GymMangmentSystemPLL
             //==========================================
             #region Object From IMapper
             //use AddProfile عشان يعرف يوصل للConfiuration in BLL اللى متعلم فيها انه يحول من object To Object
-            builder.Services.AddAutoMapper(T => T.AddProfile(typeof(IMapper)));
+            builder.Services.AddAutoMapper(T => T.AddProfile(typeof(MappingProfile)));
             //builder.Services.AddAutoMapper(T => T.AddProfile(new MappingProfile())));
+            #endregion
+            //==========================================
+            #region Object From IAnalytic Service
+            builder.Services.AddScoped<IAnalyticsService,AnalyticsService>();
+            #endregion
+            //==========================================
+            #region Object From IMemberService
+            builder.Services.AddScoped<IMemberServices, MemberService>();
             #endregion
             //==========================================
             #endregion
@@ -94,13 +104,58 @@ namespace GymMangmentSystemPLL
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
-            app.UseRouting();
+            app.UseRouting();//check that url match Routing Table route دى بتmatch فقط انما اللى بيفذ الrouting => MapControllerRoute
             app.UseAuthorization();
-            app.MapStaticAssets();
+            app.MapStaticAssets();//==UseStaticFiles نفس ال pipline بس دى اتعملت مع .net 8 عشان بتكون more Optimization
+           
+            //=========================================================
+            #region شرح Routing 
+            //اول مابعمل launch for application واعمل run بيتعمله routing table => عشان UseRouting Pipline match URL موجود فى Routing Table 
+            //طب خلاص اتاكد Use Auzorization Pipline => Check that User has access for Servse 
+            //Routing Engine بيستخدم Pipline MapControllerRoute => عشان يعمل Mapping For Request ويشوف هيروح على انهى Controller وينفذ انهى Action
+
+            #endregion
+            //=========================================================
+            #region Testing For Routing 
+            //لو كتبت اى اسم  Controller يروحله على طول لو انا مستخدم دى 
+            //this Generic Routing ودا كافى لكل السيناريوهات ومش محتاج اعمل حاجة تانى 
             app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}")
-                .WithStaticAssets();
+             name: "default",
+             pattern: "{controller=Home}/{action=Index}/{id?}")
+             .WithStaticAssets();
+            //يعنى لو كتبت فى Request => Member هيروح لMember+Index
+            //طب لو كتبت Member/Create هيروحلها 
+            //لو كتبت Trainer بس 
+            //هيروح على Trainer/Index by default 
+            //لو كتبت Home فقط       
+            //هيروح على Home/Index 
+            //لو مكتبتش اى حاجة هيروح على Home/Index برضو لانه دا Default
+            //يعنى الخلاصة لو كتبت اسم Controller / Action هيروح عنده عشان ينفذه 
+            //لو مكتبتش هيروح على Home/Index by default 
+            //لو كتبت اسم Controller فقط من غير اسم Action  هيروح على Controller اللى انت كاتبه + Index Action by default 
+            //ممكن ابعت Id in request like Member/GetMember/10 عشان Route يقدر يستقبل الid لازم نفس الاسم id وبنفس الsyntax تكونكاتبه فى GetMember
+            //طب هو optional يعنى ممكن مبعتهوش طب لو مبعتهوش هياخد القيمة بكام => default of int =0 
+            //طب لو بعت id =abcd مش نفس نوع id اللى هو int برضو هياخد   =0
+            //ممكن اعمله constrain => Routing Constrain 
+            // pattern: "{controller=Home}/{action=Index}/{id:int}") دا بيجبره انه يبعته int فقط لان لما ببعته abcd ياخد default from int 
+            //لو عملته اجبارى فلازم مش هيشتغل غير بالid 
+            //================================================================================================================================
+            //================================================================================================================================
+            //using This Pipline
+            //app.MapControllerRoute(
+            //    name: "Trainers",
+            //    pattern: "coach/{action}",//الpattern دا لو جالى اروح انفذه اى حاجة ناقصة فيه اخدها من default
+            //    defaults: new { controller = "Trainer",action="Index" });
+            //لو كتبت coach/Index => هيروح على Trainer/Index
+            //انا معرفه لم اتكتبلك Coach+any Action هيروح على Trainer+Action اللى انت كاتبها 
+            //طب لو انا كتبت coach من غير اى action يبقى هيروح على Trainer+Index لانى معرفه فى default يروح على Index لو مقلوش اى action
+            //================================================================================================================================
+            //بعد ماعملت Redirct ToaCtion 
+            //بعت request Member/Index هيروح ينفذ Member / GetMember لانى عامل redirect to anthore action عادى 
+            //Member كتبت بس  => Member/Index 
+            //Member/GetMember => هيروح على Trainer/Index 
+            #endregion
+            //==========================================================
             //Run Application 
             app.Run();
             #endregion

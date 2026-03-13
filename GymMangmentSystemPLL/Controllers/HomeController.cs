@@ -1,4 +1,5 @@
-﻿using GymMangmentSystemDAL.Entities;
+﻿using GymMangmentsystemBLL.Services.Interface;
+using GymMangmentSystemDAL.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymMangmentSystemPL.Controllers
@@ -22,10 +23,10 @@ namespace GymMangmentSystemPL.Controllers
         //مش هينفع الParameters اللى جوهاه يخدوا passing by out / ref
         //Flow =>  Url اللى بيستقبله قبل مايدخل جوه الapp is Middleware /Pipline make Configurations for this Request 
         //then يدخل جوه الConroller اللى عنده action بتروح تنادى على GetAll مثلا and return view for user
-        public IActionResult Index()
-        {
-            return View();
-        }
+        //public IActionResult Index()
+        //{
+        //    return View();
+        //}
         #endregion
         //=========================================
         #region Action Return Type
@@ -93,5 +94,23 @@ namespace GymMangmentSystemPL.Controllers
         //So For Each Action has View بنفس الاسم عشان تعرض الPages للuser 
         #endregion
         //=========================================
+        #region using HomeAnalytic Service
+        private readonly IAnalyticsService _analyticsService;
+        //اروح اعمل CLr To Inject object in Runtime From IAnalyticsService
+        //As Object from Controller depend On Object From Service 
+        public HomeController(IAnalyticsService analyticsService)
+        {
+            _analyticsService = analyticsService;
+        }
+        public ActionResult Index()
+        {
+            //Call Serivces in this action
+            var Data = _analyticsService.GetHomeAnalyticsService();
+            return View(Data);//   return View With The Same Name Of Action with data
+            // return View();//دى مش بتاخد حاجة  return View With The Same Name Of Action without any data
+            //return View("NameOfView");//Take name of View تانى كانه بيعمل Redirect To View باسم تانى من غير مابعت اى داتا => Name of View غير الى هو بيعملها 
+            //return View("NameOfView",Data);
+        }
+        #endregion
     }
 }

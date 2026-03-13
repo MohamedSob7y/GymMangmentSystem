@@ -11,7 +11,7 @@ namespace GymMangmentsystemBLL.View_Models.Trainer_View_Model
     public class TrainerToUpdateViewModel
     {
         public string Name { get; set; } = null!;//For Display Only
-                                                 //==================================================================
+        //==================================================================
         [Required(ErrorMessage = "Email is Required")]
         [StringLength(100, MinimumLength = 5, ErrorMessage = "Email Must Between 5 and 100")]
         [DataType(DataType.EmailAddress)]//for Ui Hint

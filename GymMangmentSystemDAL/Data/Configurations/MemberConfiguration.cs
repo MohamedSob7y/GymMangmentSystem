@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GymMangmentSystemDAL.Data.Configurations
 {
-    public class MemberConfiguration : GymUserConfiguration<Member>,IEntityTypeConfiguration<Member>
+    public class MemberConfiguration : GymUserConfiguration<Member>, IEntityTypeConfiguration<Member>
     {
         //Override For Configure عشان كدة استخدم الNew 
         public new void Configure(EntityTypeBuilder<Member> builder)
