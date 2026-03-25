@@ -164,6 +164,7 @@ namespace GymMangmentsystemBLL.Services.Implementation
             //كلهم مباشرين معادا Address + HealthRecord
             //Name+Email+Phone+Photo
             var memberviewmodel=_Mapper.Map<CreateMember,Member>(Member);
+            memberviewmodel.HealthRecord = _Mapper.Map<HealthRecordViewmodel, HealthRecord>(Member.HealthRecord);
             #endregion
             //=====================================================
             //After Unite Of Work

@@ -28,7 +28,7 @@ namespace GymMangmentsystemBLL.View_Models.Member_View_Model
         [Required(ErrorMessage ="Phone is Required")]
         [Phone(ErrorMessage ="inValid Format Phone")]
         [DataType(DataType.PhoneNumber)]//for ui Hint
-        [RegularExpression(@"^(010|011|015|012)\d{8}$")]//عشان اخليه مصرى بس 
+        [RegularExpression(@"^(010|011|015|012)\d{8}$",ErrorMessage ="Must Be Valid Egyption Phone Number")]//عشان اخليه مصرى بس 
         //Allowed Number After 010 هو 8 
        // [StringLength(11,MinimumLength =,ErrorMessage ="Phone must be betwee")]//دى لوعملتها ممكن يبعت اقل من 11 عادى فكدة مش صح عشان كدة اشيلها
         public string Phone { get; set; } = null!;
