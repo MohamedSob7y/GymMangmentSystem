@@ -13,7 +13,6 @@ namespace GymMangmentSystemPL.Controllers
         {
             _planService = planService;
         }
-
         #endregion
         //===============================================
         #region all Actions
@@ -87,11 +86,28 @@ namespace GymMangmentSystemPL.Controllers
         }
         #endregion
         //===============================================
+        #region Activate
+        //This Method From Type HTTPPOst المفروض بعمل فى Index View المفروض يكون فيها Form for activation المفروض بقا الForm دى تكلم Action From Type Httppost فلازم اعمل الMethod دى على طول طب بتاحد الId منين؟
+        //This Method Will Take Id From => []
+        //الفرق بين انى اكتب Return View(nameof(Index))=>هنا المفروض هو بعت Reqest مرة واحدة بااتلى لو غيرت حاجة مش هيبعت Reqest تانى بالتالى الداتا مش Updated
+        //return Redirecttoaction(nameof(index))=> هنا الداتا بتبقى Updated معايا عشان هو بيبعت Reqest كمان للDatabase عشان الReqest اللى انا عامله
+        [HttpPost] 
+        public ActionResult Activate([FromRoute]int id) //لو باخده من Form يعنى معمولى فى الForm as input hidden المفروض اعملها [FromForm]
+        {
+            var Result = _planService.ToggleStatus(id);
+            if (Result)//If True 
+            {
+                TempData["SuccessMessage"] = "Plan Toggled Successfully";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Plan Failed To Toggled";
+            }
+            return RedirectToAction(nameof(Index));
 
+        }
 
-
-
-
+        #endregion
         //===============================================
         #endregion
     }

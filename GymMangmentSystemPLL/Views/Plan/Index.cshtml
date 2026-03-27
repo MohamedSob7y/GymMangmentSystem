@@ -63,7 +63,8 @@
                                         <a asp-action="Edit" asp-route-id="@plan.Id" class="btn btn-outline btn-sm flex-fill">
                                             <i class="bi bi-pencil me-1"></i>Edit
                                         </a>
-                                        <form method="post" class="flex-fill">
+                                        <form method="post" class="flex-fill" asp-action="Activate" asp-route-id="@plan.Id">
+                                            @* <input hidden readonly value="@plan.Id"/> دى طريقة تانيه انى ابعت ال Id اما من form عن طريق انى اعمل Input hidden اما عن طريق Route *@
                                             <button type="submit" class="btn btn-outline btn-sm w-100  text-danger">
                                                 <!-- If Plan Active -->
                                                 @if (plan.IsActive)
@@ -97,9 +98,9 @@
 
 
 </div>
-@section Scripts
-{
-    <script>
+@* This Scipt موجود فى Index بتاعت Member + Session + Plan  طب مااحطهم فى Partial View اسمها => _AlertBoxScripts *@
+@section Scripts {
+    @* <script>
         document.addEventListener("DOMContentLoaded", function () {
             const alertBox = document.getElementById("Alert");
             if (alertBox) {
@@ -110,5 +111,6 @@
                 }, 1500);
             }
         });
-    </script>
+    </script> *@
+    <partial name="_AlertBoxScripts">
 }

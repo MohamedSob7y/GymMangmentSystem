@@ -142,8 +142,9 @@
         </div>
     </main>
 </div>
+@* This Scipt موجود فى Index بتاعت Member + Session + Plan  طب مااحطهم فى Partial View اسمها => _AlertBoxScripts *@
 @section Scripts {
-    <script>
+    @* <script>
         document.addEventListener("DOMContentLoaded", function () {
             const alertBox = document.getElementById("Alert");
             if (alertBox) {
@@ -154,6 +155,8 @@
                 }, 1500);
             }
         });
-    </script>
+    </script> *@
+    <partial name="_AlertBoxScripts">
 }
+
 

@@ -21,7 +21,7 @@ namespace GymMangmentsystemBLL.View_Models.Session_View_Model
         public string TimeDisplay => $"{StartDate:hh:mm tt}-{EndDate:hh:mm tt}";
             
         public string DateDisplay=> $"{StartDate:MMM dd, yyyy}";
-        public TimeSpan Duratiob =>EndDate-StartDate;//Take Time only Not Date كمان
+        public TimeSpan Duration =>EndDate-StartDate;//Take Time only Not Date كمان
         public string Status { get 
             {
                 if (StartDate>DateTime.Now)

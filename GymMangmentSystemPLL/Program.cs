@@ -95,6 +95,14 @@ namespace GymMangmentSystemPLL
             builder.Services.AddScoped<IPlanService,PlanService>();
             #endregion
             //==========================================
+            #region Object From ISessionService
+            builder.Services.AddScoped<ISessionService, SessionService>();
+            #endregion
+            //==========================================
+            #region Object From ITrainerService
+            builder.Services.AddScoped<ITrainerService, TrainerService>();
+            #endregion
+            //==========================================
             #endregion
             //==========================================
             #region Build + Configuration+ Run application
