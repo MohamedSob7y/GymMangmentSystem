@@ -333,15 +333,15 @@ namespace GymMangmentsystemBLL.Services.Implementation
             {
                 //Make Validation for Email + Phone So make Helper Method 
                 #region Before Helper Method
-                //var EmailExsist = _genericRepository.GetAll(T => T.Email == memberToUpdateViewModel.Email).Any();
-                //var PhoneExsist = _genericRepository.GetAll(T => T.Phone == memberToUpdateViewModel.Phone).Any();
-                //if (EmailExsist && PhoneExsist) return false; 
+                var EmailExsist = _uniteOfWork.GetRepository<Member>().GetAll(T => T.Email == memberToUpdateViewModel.Email&&T.Id!= MemberId).Any();
+                var PhoneExsist = _uniteOfWork.GetRepository<Member>().GetAll(T => T.Phone == memberToUpdateViewModel.Phone && T.Id != MemberId).Any();
+                if (EmailExsist && PhoneExsist) return false; 
                 #endregion
                 //==============================================
                 #region After Helper Method
-                if(IsEmailExist(memberToUpdateViewModel.Email)||
-                    IsPhoneExist(memberToUpdateViewModel.Phone))
-                    return false;
+                //if(IsEmailExist(memberToUpdateViewModel.Email)||
+                //    IsPhoneExist(memberToUpdateViewModel.Phone))
+                //    return false;
                 //مش عايز يدخلى اى email موجود or Phone موجود
 
                 #endregion

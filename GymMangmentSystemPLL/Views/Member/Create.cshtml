@@ -149,8 +149,10 @@
 
     </main>
 </div>
+   @* الجزء دا متكرر هنا وفى الCreate عشان كدة احطه فى Partial View وانادى عليها هنا وهناك اسم الPartial View =>_ValidationSciptPartial اللى هى اصلا معمولة لوحدها انا فقط انادى عليها هنا فى View  *@
 @section Scripts {
-<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+@* <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script> *@
+    <partial name="_ValidationScriptsPartial">
 }
 

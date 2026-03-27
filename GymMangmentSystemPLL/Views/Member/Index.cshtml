@@ -103,7 +103,7 @@
                                                     <hr class="dropdown-divider">
                                                 </li>
                                                 <li>
-                                                    <a href="\Member\EditMember\memberId"
+                                                    <a asp-controller="Member" asp-action="MemberEdit" asp-route-id="@member.Id"
                                                        class="dropdown-item d-flex align-items-center gap-3">
                                                         <img src="~/images/edit.jpg" alt="edit icon"
                                                              style="width: 20px; height: 20px;" />
@@ -114,7 +114,8 @@
                                                     <hr class="dropdown-divider">
                                                 </li>
                                                 <li>
-                                                    <a href="\Member\Delete\memberId"
+                                                    @* لان Action Delete Take as Parameter From Route *@
+                                                    <a asp-controller="Member" asp-action="Delete" asp-route-id="@member.Id"
                                                        class="dropdown-item d-flex align-items-center gap-3 text-danger">
                                                         <img src="~/images/x-circle 1.jpg" alt="delete icon"
                                                              style="width: 20px; height: 20px;" />
