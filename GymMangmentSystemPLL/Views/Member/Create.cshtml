@@ -101,13 +101,13 @@
                         <div class="col-12 col-md-6">
                             <label asp-for="HealthRecord.Height" class="form-label"></label>
                             <input asp-for="HealthRecord.Height" class="form-control" />
-                            <span asp-validation-for="HealthRecord.Height"></span>
+                            <span asp-validation-for="HealthRecord.Height" class="text-danger"></span>
                         </div>
 
                         <div class="col-12 col-md-6">
                             <label asp-for="HealthRecord.Weight" class="form-label"></label>
                             <input asp-for="HealthRecord.Weight" class="form-control" />
-                            <span asp-validation-for="HealthRecord.Weight"></span>
+                            <span asp-validation-for="HealthRecord.Weight" class="text-danger"></span>
                         </div>
 
                         <div class="col-12 col-md-6">
@@ -124,12 +124,12 @@
                                 <option>AB+</option>
                                 <option>AB-</option>
                             </select>
-                            <span asp-validation-for="HealthRecord.BloodType"><</span>
+                            <span asp-validation-for="HealthRecord.BloodType" class="text-danger"></span>
                         </div>
                         <div class="col-12 col-md-6">
                             <label asp-for="HealthRecord.Note" class="form-label"></label>
                             <input asp-for="HealthRecord.Note" class="form-control" />
-                            <span asp-validation-for="HealthRecord.Note"></span>
+                            <span asp-validation-for="HealthRecord.Note" class="text-danger"></span>
                         </div>
                     </div>
                 </div>

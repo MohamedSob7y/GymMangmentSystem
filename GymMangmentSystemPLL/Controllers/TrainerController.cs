@@ -77,7 +77,7 @@ namespace GymMangmentSystemPL.Controllers
             var Result=_trainerService.CreateTrainer(createTrainerViewModel);
             if(Result)
             {
-                TempData["SuccessMessage"] = "Successfully To Create Trainer";
+                TempData["SuccessMessage"] = "Trainer Created Successfully";
             }
             else
             {

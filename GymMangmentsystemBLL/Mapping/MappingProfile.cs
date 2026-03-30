@@ -152,7 +152,8 @@ namespace GymMangmentsystemBLL.Mapping
             CreateMap<Trainer, TrainerToUpdateViewModel>()
                 .ForMember(dest => dest.BuildingNumber, options => options.MapFrom(src => src.Address.BuildingNumber))
                 .ForMember(dest => dest.Street, options => options.MapFrom(src => src.Address.Street))
-                .ForMember(dest => dest.City, options => options.MapFrom(src => src.Address.City));
+                .ForMember(dest => dest.City, options => options.MapFrom(src => src.Address.City))
+                .ForMember(dest => dest.Specialities,options => options.MapFrom(src => src.Speciality.ToString()));
             CreateMap<TrainerToUpdateViewModel, Trainer>()
                 .ForMember(dest => dest.Name, options => options.Ignore())
                 .AfterMap((src, dest) =>
