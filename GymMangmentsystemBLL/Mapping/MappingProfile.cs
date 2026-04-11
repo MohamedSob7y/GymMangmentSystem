@@ -125,6 +125,14 @@ namespace GymMangmentsystemBLL.Mapping
             CreateMap<CreateSessionViewModel, Session>();
             CreateMap<Session, UpdateSessionViewModel>().ReverseMap();
 
+            //Mapping For Select_Trainer_Category Viewmodel
+            #region Mapping For Select_Trainer_Category
+            CreateMap<Trainer, TrainerSelectViewmodel>();
+            CreateMap<Category, CategorySelectViewModel>()
+                .ForMember(dest => dest.Name, options => options.MapFrom(src=>src.CategoryName));
+                //فى كمشكلة انى لازم اعرفه ان الاسم بتاع CategoryName==Name اللى موجود فى Viewmodel
+            #endregion
+
         }
         //==========================================
         private void MapTrainer()

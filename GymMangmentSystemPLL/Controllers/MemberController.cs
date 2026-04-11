@@ -108,7 +108,7 @@ namespace GymMangmentSystemPL.Controllers
             if (Result)
             {
                 TempData["SuccessMessage"] = "Member Created Successfully";//عشان هنقل داتا من Request For Anthore Request
-                                                                           //المفروض لما Create Member Successfully المفروض اروح بقا على All Members واشوف الMember الجديد بعد ماتعمل ول لاء برضو نفس الطكلام واعرض رسالة وبعدين اعملها فى View بتاعت Index
+                  //المفروض لما Create Member Successfully المفروض اروح بقا على All Members واشوف الMember الجديد بعد ماتعمل ول لاء برضو نفس الطكلام واعرض رسالة وبعدين اعملها فى View بتاعت Index
 
             }
             else
