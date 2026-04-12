@@ -175,7 +175,39 @@ namespace GymMangmentSystemPL.Controllers
         #endregion
         //==============================================
         #region Delete Action
-
+        public ActionResult Delete([FromRoute]int id)
+        {
+            if (id <= 0)
+            {
+                TempData["ErrorMessage"] = "Id Cannot be negative or zero";
+                return RedirectToAction(nameof(Index));
+            }
+            var session = _sessionService.GetSessionDetails(id);
+            if (session is null)
+            {
+                TempData["ErrorMessage"] = "Session Not Found";
+                return RedirectToAction(nameof(Index));
+            }
+            //Send Id To action Post Data To Server 
+            ViewBag.SessionId = id;
+            return View();
+        }
+        [HttpPost]
+        //This Action Will Take Id From Action Delete عشان كدة ببعته لNext Action that will Post Data To Server فاول action will take Id From Route
+        //Second Action will Take Id From First Action عن طريق انى بعت الداتا دى لنفس الRequest by ViewBage
+        public ActionResult DeleteConfirmed(int id)
+        {
+            var Result = _sessionService.RemoveSession(id);
+            if(Result)
+            {
+                TempData["SuccessMessage"] = "Session Deleted Successfully";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Session Failed To Delete ";
+            }
+            return RedirectToAction(nameof(Index));
+        }
         #endregion
         //==============================================
         #region Helper Method

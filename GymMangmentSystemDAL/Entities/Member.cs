@@ -8,7 +8,7 @@ namespace GymMangmentSystemDAL.Entities
 {
     public class Member:GymUser
     {
-        public string? Photo {  get; set; }
+        public string Photo { get; set; } = null!;//After This modification Make Migration لان دا تعديل على Strtucre DDL 
         //Rename this in Configuration as it call CreatedAt
         //لما member يتحول الى table in Database اغير اسم createdat to JoinDate
 

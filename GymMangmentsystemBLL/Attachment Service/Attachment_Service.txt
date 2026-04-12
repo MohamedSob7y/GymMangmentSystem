@@ -1,0 +1,333 @@
+ما هو Attachment Service؟
+
+هو Service Layer وظيفتها أن تكون مسؤولة عن أي شيء يخص الملف، مثل:
+
+التحقق من نوع الملف والحجم
+توليد اسم آمن وغير مكرر
+تحديد مكان التخزين
+حفظ metadata في قاعدة البيانات
+حذف الملف من التخزين عند الحذف
+إرجاع رابط أو مسار أو معرف للملف
+
+يعني بدل أن يكون الـ Controller فيه كود طويل لقراءة الملف ونسخه وتخزينه، يكون الـ Controller فقط يستقبل الطلب ويرسل الملف إلى IAttachmentService. هذا يجعل الكود أنظف وأسهل في الاختبار والصيانة. فكرة الفصل هذه منسجمة مع أسلوب ASP.NET Core في الاعتماد على Dependency Injection والخدمات. أما استقبال الملف نفسه فيتم عبر model binding في الأكشن.
+
+الشكل المعتاد داخل MVC
+
+الصورة الذهنية تكون كالتالي:
+
+المستخدم يرفع الملف من View
+الـ Controller يستقبل IFormFile
+يمرر الملف إلى AttachmentService
+الـ Service:
+تفحص الامتداد والحجم
+تنشئ اسمًا جديدًا مثل GUID
+تحفظ الملف
+تحفظ بياناته في DB إن لزم
+ترجع نتيجة مثل:
+FileName
+StoredFileName
+Path أو Url
+ContentType
+Size
+
+مثال Interface بسيط:
+
+public interface IAttachmentService
+{
+    Task<string> UploadAsync(IFormFile file, string folderName);
+    Task<bool> DeleteAsync(string relativePath);
+}
+
+ومثال استخدام داخل Controller:
+
+[HttpPost]
+public async Task<IActionResult> Create(ProductCreateVM model)
+{
+    if (!ModelState.IsValid)
+        return View(model);
+
+    if (model.Image is not null)
+    {
+        string path = await _attachmentService.UploadAsync(model.Image, "products");
+        // خزّن path في قاعدة البيانات
+    }
+
+    return RedirectToAction("Index");
+}
+لماذا لا نحفظ من داخل Controller مباشرة؟
+
+لأن الـ Controller دوره الأساسي:
+
+استقبال الطلب
+التحقق المبدئي
+استدعاء الـ business/service layer
+إعادة response أو view
+
+أما منطق الملفات فيه تفاصيل كثيرة: أسماء ملفات، مسارات، حماية، حذف، أخطاء IO، تخزين محلي أو سحابي. لذلك عزله داخل Service أفضل تصميميًا.
+
+طرق التخزين الأساسية
+
+عندك 3 طرق مشهورة جدًا:
+
+1) التخزين داخل السيرفر نفسه على Disk
+
+مثل:
+
+wwwroot/uploads
+أو مجلد خارج wwwroot
+
+هذه أسهل طريقة للمشاريع الصغيرة والمتوسطة. تحفظ الملف فعليًا على القرص، وفي قاعدة البيانات تحفظ فقط:
+
+اسم الملف
+المسار
+الحجم
+النوع
+تاريخ الرفع
+
+لو الملف داخل wwwroot يمكن الوصول له كرابط مباشر كملف static إذا كانت الإعدادات تسمح بذلك. ASP.NET Core يشرح أن تقديم الملفات الثابتة يتم عبر Static File Middleware أو إعدادات static assets حسب نسخة المشروع.
+
+مميزاتها:
+
+سهلة جدًا
+سريعة في البداية
+لا تحتاج خدمة خارجية
+
+عيوبها:
+
+لو السيرفر اتغير أو التطبيق اتنقل قد تفقد الملفات إن لم تنقلها
+التوسّع الأفقي صعب؛ لو عندك أكثر من server ستحتاج مشاركة ملفات
+تحتاج اهتمامًا بالنسخ الاحتياطي والصلاحيات
+2) التخزين داخل قاعدة البيانات
+
+إما تحفظ:
+
+byte[] / varbinary(max) للملف نفسه
+أو تحفظ فقط الـ metadata والمسار
+
+الأغلب عمليًا يفضّل حفظ المسار في قاعدة البيانات والملف خارجها، وليس حفظ الملف نفسه داخل الجدول، إلا لو الملفات صغيرة جدًا أو هناك سبب قوي مثل سهولة المعاملات أو متطلبات أمنية خاصة. تخزين binary كبير داخل DB قد يثقل قاعدة البيانات، يكبر النسخ الاحتياطي، ويؤثر على الأداء. هذه نقطة عملية أكثر من كونها قاعدة صارمة، لكنها شائعة جدًا في التصميمات الواقعية. كما أن Microsoft في توثيق رفع الملفات تركز على التعامل مع streams/ملفات بدل حشر كل شيء في الذاكرة.
+
+متى أفكر في تخزين الملف داخل DB؟
+
+الملفات صغيرة جدًا
+عددها محدود
+تحتاج transaction قوية مع البيانات نفسها
+عندك سياسة موحدة للنسخ الاحتياطي من خلال DB فقط
+
+متى أتجنبها؟
+
+الصور والـ PDFs والوسائط كثيرة أو كبيرة
+تتوقع scale كبير
+تريد CDN أو file serving أسرع
+3) التخزين السحابي مثل Azure Blob Storage
+
+هذه أفضل طريقة غالبًا للمشاريع التي تتوسع أو تعمل على cloud. Azure Blob Storage مصمم لتخزين كميات ضخمة من unstructured data مثل الصور وPDF والملفات الثنائية. ويمكن الرفع إليه مباشرة من .NET باستخدام stream أو file path.
+
+مميزاته:
+
+قابلية توسع ممتازة
+مناسب جدًا للملفات الكبيرة والكثيرة
+أسهل مع أكثر من سيرفر
+يمكن ربطه مع CDN
+مناسب للنسخ الاحتياطي والاستمرارية
+
+عيوبه:
+
+أعقد قليلًا في الإعداد
+تكلفة إضافية
+تحتاج إدارة صلاحيات وروابط وصول
+هل أخزن داخل wwwroot أم خارجها؟
+
+هذه نقطة مهمة جدًا.
+
+داخل wwwroot
+
+معناه أن الملف يمكن تقديمه كمحتوى static بسهولة، مثل:
+
+صور المنتجات
+ملفات عامة
+ملفات المستخدمين المسموح للجميع برؤيتها
+
+مناسب عندما يكون الملف Public.
+ASP.NET Core يقدم الملفات الثابتة من web root باستخدام إعدادات static files.
+
+خارج wwwroot
+
+أفضل عندما يكون الملف خاص أو يحتاج صلاحيات. وقتها لا تعطيه URL مباشر، بل تنشئ Action مثل Download(id) وتتحقق من الصلاحيات ثم تقرأ الملف وتعيده للمستخدم.
+
+هذه الطريقة أفضل للملفات الحساسة مثل:
+
+مستندات موظفين
+تقارير طبية
+فواتير خاصة
+ملفات لا يراها إلا صاحبها أو الأدمن
+كيف يتم الحفظ فعليًا؟
+
+السيناريو الشائع:
+
+public async Task<string> UploadAsync(IFormFile file, string folderName)
+{
+    if (file == null || file.Length == 0)
+        throw new Exception("Invalid file");
+
+    var extension = Path.GetExtension(file.FileName);
+    var fileName = $"{Guid.NewGuid()}{extension}";
+
+    var folderPath = Path.Combine(_environment.WebRootPath, "uploads", folderName);
+
+    if (!Directory.Exists(folderPath))
+        Directory.CreateDirectory(folderPath);
+
+    var filePath = Path.Combine(folderPath, fileName);
+
+    using var stream = new FileStream(filePath, FileMode.Create);
+    await file.CopyToAsync(stream);
+
+    return Path.Combine("uploads", folderName, fileName).Replace("\\", "/");
+}
+
+هنا:
+
+IWebHostEnvironment تعطيك WebRootPath و ContentRootPath
+يتم إنشاء اسم جديد
+يتم إنشاء المجلد إذا لم يكن موجودًا
+يتم نسخ الملف باستخدام stream
+وتشرح Microsoft كذلك دور IWebHostEnvironment و IFileProvider في الوصول إلى الملفات داخل التطبيق.
+ما الذي يُحفظ في قاعدة البيانات؟
+
+الأفضل غالبًا أن تخزن Metadata مثل:
+
+public class Attachment
+{
+    public int Id { get; set; }
+    public string OriginalFileName { get; set; }
+    public string StoredFileName { get; set; }
+    public string RelativePath { get; set; }
+    public string ContentType { get; set; }
+    public long Size { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+
+بهذا يمكنك:
+
+عرض اسم الملف الأصلي للمستخدم
+الاحتفاظ باسم داخلي آمن
+حذف الملف بسهولة
+ربطه بكيان آخر مثل Product أو User أو Post
+الفرق بين Buffered Upload و Streaming
+
+Microsoft توضح أن ASP.NET Core يدعم:
+
+Buffered model binding للملفات الأصغر
+Streaming للملفات الأكبر
+Buffered
+
+يعني MVC يستقبل الملف بشكل أسهل عبر IFormFile.
+هذا مناسب لمعظم الحالات العادية:
+
+صورة منتج
+PDF صغير
+ملف CV
+مرفق عادي
+Streaming
+
+تستخدمه عندما تكون الملفات كبيرة جدًا، لأنك لا تريد تحميل الملف بالكامل في الذاكرة.
+هذا مهم في:
+
+فيديو
+أرشيفات كبيرة
+ملفات ضخمة
+أنظمة document management
+
+إشارة مهمة من Microsoft: أمثلة MemoryStream لها حدود، وللأحجام الكبيرة لا تعتمد على تخزين الملف كاملًا في الذاكرة.
+
+أهم اعتبارات الأمان
+
+هذه نقطة لازم تأخذها بجدية:
+
+1) لا تثق في file.FileName
+
+اسم الملف القادم من العميل هو metadata فقط ويمكن التلاعب به. لذلك:
+
+لا تحفظ به مباشرة
+لا تستخدمه لتكوين مسار نهائي
+أنشئ اسمًا داخليًا جديدًا مثل GUID
+وتوضح أمثلة Microsoft هذا المعنى صراحة في موضوع رفع الملفات والملفات الثابتة.
+2) افحص الامتداد وContentType
+
+مثلاً اسمح فقط بـ:
+
+.jpg
+.png
+.pdf
+
+لكن لا تعتمد على الامتداد وحده، لأن المستخدم قد يغيره.
+
+3) ضع حدًا للحجم
+
+حتى لا يرفع أحد ملفًا ضخمًا يستهلك السيرفر.
+
+4) لا تحفظ ملفات حساسة داخل wwwroot
+
+لأنها قد تصبح قابلة للوصول مباشرة.
+
+5) افحص الملف ضد malware لو النظام حساس
+
+خصوصًا في الأنظمة المؤسسية.
+
+6) تحكم في الصلاحيات
+
+من يرفع؟ من يحذف؟ من ينزّل؟
+
+متى أستخدم كل طريقة؟
+مشروع صغير أو تدريب
+خزّن الملف على Disk
+خزّن path في DB
+مشروع Dashboard أو ERP متوسط
+Disk أو Network Share
+ويفضل الملفات الخاصة خارج wwwroot
+مشروع production كبير أو Cloud
+Azure Blob Storage
+وخزّن metadata فقط في DB
+الشكل الأفضل عمليًا في أغلب المشاريع
+
+أفضل تصميم شائع هو:
+
+الملف نفسه: على Disk أو Blob Storage
+بيانات الملف: في DB
+
+وهذا لأنه يوازن بين:
+
+الأداء
+سهولة الإدارة
+التوسع
+سهولة ربط الملف بالكيانات
+مثال بنية نظيفة
+IAttachmentService
+AttachmentService
+Attachment Entity
+AttachmentDto
+AttachmentSettings في appsettings.json
+
+مثال إعدادات:
+
+"AttachmentSettings": {
+  "AllowedExtensions": [".jpg", ".png", ".pdf"],
+  "MaxFileSizeInMB": 5,
+  "UploadPath": "wwwroot/uploads"
+}
+
+وممكن تربطها عبر IOptions<AttachmentSettings> باستخدام نظام الإعدادات في ASP.NET Core.
+
+المصادر الرسمية التي أنصحك تبدأ بها
+Upload files in ASP.NET Core
+هذا أهم مرجع رسمي لرفع الملفات، ويفرق بين IFormFile وstreaming، وفيه اعتبارات الأمان.
+Model Binding in ASP.NET Core
+لتفهم كيف يصل IFormFile من الـ form إلى الـ action parameter.
+Static files in ASP.NET Core
+مهم جدًا لو ستخزن الملفات في wwwroot أو ستقدمها للمستخدم كرابط مباشر.
+File Providers in ASP.NET Core
+لتفهم الوصول للملفات داخل التطبيق وتجريد file system access.
+Azure Blob Storage documentation
+لو تفكر في التخزين السحابي أو مشروع production قابل للتوسع.
+
+https://learn.microsoft.com/en-us/aspnet/core/mvc/models/file-uploads?view=aspnetcore-10.0&utm_source=chatgpt.com 
