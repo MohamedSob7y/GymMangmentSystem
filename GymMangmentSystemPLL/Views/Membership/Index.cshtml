@@ -1,0 +1,79 @@
+﻿@using GymMangmentsystemBLL.View_Models.MembershipViewModel
+@model IEnumerable<MembershipVM>
+
+<div class="container-fluid">
+
+    <header class="bg-primary text-white rounded-3 p-4 shadow-sm mt-5 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1 fw-semibold">Active Memberships</h2>
+                <p class="mb-0 text-light opacity-75">Members That have Active Plans</p>
+            </div>
+            <div class="col text-end">
+                <a asp-action="Create" class="btn btn-light">
+                    + New Membership
+                </a>
+            </div>
+        </div>
+    </header>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Member</th>
+                            <th>Plan</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.MemberId</td>
+                                <td>@item.PlanId</td>
+                                <td>@item.StartDate.ToShortDateString()</td>
+                                <td>@item.EndDate.ToShortDateString()</td>
+                                <td>
+                                    <span class="badge @(item.Status == "Active" ? "bg-success" : "bg-secondary")">
+                                        @item.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <form asp-action="Cancel" method="post" class="d-inline">
+                                        <input type="hidden" name="memberId" value="@item.MemberId" />
+                                        <input type="hidden" name="planId" value="@item.PlanId" />
+
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            Cancel
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <h4 class="text-muted">No Active Memberships Available</h4>
+        </div>
+    }
+</div>

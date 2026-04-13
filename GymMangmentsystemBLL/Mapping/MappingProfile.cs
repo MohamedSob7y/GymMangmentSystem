@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using GymManagementSystemBLL.View_Models.SessionVm;
 using GymMangmentsystemBLL.View_Models.Member_View_Model;
+using GymMangmentsystemBLL.View_Models.MemberSession_Viewmodel;
+using GymMangmentsystemBLL.View_Models.MembershipViewModel;
 using GymMangmentsystemBLL.View_Models.Plan_View_Model;
 using GymMangmentsystemBLL.View_Models.Session_View_Model;
 using GymMangmentsystemBLL.View_Models.Trainer_View_Model;
@@ -34,6 +36,13 @@ namespace GymMangmentsystemBLL.Mapping
             MapPlan();
             #endregion
             //=======================================
+            #region Automatic Mapping For Memberships
+            MapMembership();
+            #endregion
+            //=======================================
+            #region Automatic Mapping For MemberSession
+            MapMemberSession(); 
+            #endregion
         }
         //==========================================
         private void MapMember()
@@ -180,6 +189,21 @@ namespace GymMangmentsystemBLL.Mapping
             CreateMap<PlanToUpdateVM, Plan>()
                 .ForMember(dest => dest.Name, Options => Options.Ignore())
                 .ForMember(dest => dest.UpdatedAt, Options => Options.MapFrom(src => DateTime.Now));
+        }
+        //==========================================
+        private void MapMembership()
+        {
+            //For GetAll + GetById
+            CreateMap<MemberShip, MembershipVM>();
+            //For Creation
+            CreateMap<CreateMembershipVM, MemberShip>();
+        }
+        //==========================================
+        private void MapMemberSession()
+        {
+            CreateMap<MemberSession,MemberSessionVM>();
+            //For Create
+            CreateMap<MemberSessionVM, MemberSession>();
         }
     }
 }

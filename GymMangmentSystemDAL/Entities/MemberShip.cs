@@ -15,6 +15,7 @@ namespace GymMangmentSystemDAL.Entities
         public int PlanId {  get; set; }
        //وقت اللى اتعمل فيه Membership as table in Database == CreatedAt   => Must Be Rename in Configurations
         public DateTime EndDate {  get; set; }
+       
         public Member Member { get; set; }
         //make Computed Property مش هتتحول فى database  calculated based on Start Date+ End Date اللى اى حاجة هى اصلا 
         //Must Be Ignored in Configuration

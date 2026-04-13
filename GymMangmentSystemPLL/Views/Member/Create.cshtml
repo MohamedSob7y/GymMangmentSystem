@@ -9,8 +9,12 @@
         @* لو فى اى error Message اعرضها *@
         @Html.ValidationMessage("DataInValid", new {@class="text-danger" })
         @* Form دى بعد تاخد الداتا من User لازم يبعتها بعد كدة لل Action تعمل Submit Data  *@
-        <form method="post" asp-action="CreateMember">
-
+        <form method="post" asp-action="CreateMember" enctype="multipart/form-data">
+            
+            @* Default Type اللى Form بتقبله من Broswer => Text/Plain يعنى 
+            الفورم مش بتقبل داتا غير النوع دا من Browser انا محتاج بقا اعرفه انه يقبل اى نوع 
+            enctype="multipart/form-data" عملنا دا عشان اعرف Form انه يقبل اى نوع من الدتا من Browser *@
+            
             <!-- Step navigation -->
             <ul class="nav nav-tabs mb-4" id="addMemberTabs" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -37,6 +41,16 @@
                         <hr class="mt-2">
                     </div>
                     <div class="row g-3">
+
+                        <div class="mt-2">
+                            <img id="photoPreview" src="#" alt="Photo Preview" style="max-width: 200px; display: none;"
+                                 class="img-thumbnail" />
+                        </div>
+                        <label asp-for="PhotoFile" class="control-label">Profile Photo <span class="text-danger">*</span></label>
+                        <input asp-for="PhotoFile" type="file" class="form-control" accept="image/*" id="photoInput" required />
+                        <span asp-validation-for="PhotoFile" class="text-danger"></span>
+                        <small class="form-text text-muted">Max size: 5 MB. Allowed types: JPG, PNG, Jpeg (Required)</small>
+
                         <div class="col-12 col-md-6">
                             <label asp-for="Name" class="form-label"></label>
                             <input asp-for="Name" type="text" class="form-control" />
@@ -154,5 +168,22 @@
 @* <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
 <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script> *@
     <partial name="_ValidationScriptsPartial">
+
+
+        <script>
+            // Preview photo before upload
+            document.getElementById('photoInput').addEventListener('change', function(e) {
+                var file = e.target.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var preview = document.getElementById('photoPreview');
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        </script>
 }
 

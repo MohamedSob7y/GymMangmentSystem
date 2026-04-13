@@ -1,4 +1,5 @@
 ﻿using GymMangmentSystemDAL.Entities.Enums;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -50,5 +51,11 @@ namespace GymMangmentsystemBLL.View_Models.Member_View_Model
         //هعمل HealthRecord Viewmodel عشان هستخدمها فى اكتر من مكان
         [Required(ErrorMessage = "HealthRecord Data is Required")]
         public HealthRecordViewmodel HealthRecord { get; set; } = null!;
+
+
+        //After IAttachment Service =>Must Be Upload Photo بنستخدم دى عشان اقدر Refactor Data
+        [Required(ErrorMessage ="Photo is Required")]
+        [Display(Name="Profile Photo")]//عشان اخليها تظهر للUser with this Name
+        public IFormFile PhotoFile { get; set; }=null!;
     }
 }

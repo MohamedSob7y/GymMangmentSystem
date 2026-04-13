@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GymMangmentsystemBLL.Attachment_Service;
 using GymMangmentsystemBLL.Mapping;
 using GymMangmentsystemBLL.Services.Implementation;
 using GymMangmentsystemBLL.Services.Interface;
@@ -101,6 +102,18 @@ namespace GymMangmentSystemPLL
             //==========================================
             #region Object From ITrainerService
             builder.Services.AddScoped<ITrainerService, TrainerService>();
+            #endregion
+            //==========================================
+            #region Object IAttachment Service
+            builder.Services.AddScoped<IAttachmentService,AttachmentService>();
+            #endregion
+            //==========================================
+            #region Object From IMembership Service
+            builder.Services.AddScoped<IMembershipService,MembershipService>();
+            #endregion
+            //==========================================
+            #region Object From IMemberSession Service
+            builder.Services.AddScoped<IMemberSession,MemberSessionService>();
             #endregion
             //==========================================
             #endregion
