@@ -11,10 +11,16 @@ namespace GymMangmentsystemBLL.Services.Interface
     public interface IMemberSession
     {
         IEnumerable<MemberSessionVM> GetAll();
-        MemberSessionVM? GetById(int id);
-        bool Create(CreateMemberSession createMemberSession);
-        bool Delete(int BookingId);
-        public string MarkAttendance(int bookingId);
+
+        bool Create(CreateMemberSession vm);
+
+        bool Delete(int bookingId);
+
+        IEnumerable<MemberSessionVM> GetMembersForUpcomingSession(int sessionId);
+
+        IEnumerable<MemberSessionVM> GetMembersForOngoingSession(int sessionId);
+
+        void MarkAttendance(int bookingId);
 
     }
 }

@@ -1,0 +1,52 @@
+﻿@using GymMangmentsystemBLL.View_Models.MemberSession_Viewmodel
+@model IEnumerable<MemberSessionVM>
+
+<header class="bg-primary text-white rounded-3 p-4 shadow-sm mt-5 mb-4">
+    <h2>Upcoming Session Members</h2>
+</header>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        @if (Model.Any())
+        {
+            <table class="table table-striped text-center">
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Booking Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.MemberName</td>
+                            @* <td>@item.BookingDate</td> *@
+                            <td>
+                                <form asp-action="Cancel" method="post">
+                                    <input type="hidden" name="bookingId" value="@item.Id" />
+
+                                    <button class="btn btn-danger btn-sm">
+                                        Cancel
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <h4>No Bookings Available</h4>
+            </div>
+        }
+
+    </div>
+</div>
+
+<a asp-action="Index" class="btn btn-secondary mt-3">Back</a>

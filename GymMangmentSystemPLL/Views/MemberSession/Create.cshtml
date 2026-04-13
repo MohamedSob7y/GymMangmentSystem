@@ -1,0 +1,70 @@
+﻿@using GymMangmentsystemBLL.View_Models.MemberSession_Viewmodel
+@model CreateMemberSession
+
+<h1>Create New Booking</h1>
+<hr />
+
+<div class="row">
+    <div class="d-flex justify-content-center align-items-center h-100">
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Booking Information</h5>
+                </div>
+
+                <div class="card-body">
+
+                    <form asp-action="Create" method="post">
+
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger">
+                                Booking failed
+                            </div>
+                        }
+
+                        <!-- Member -->
+                        <div class="mb-3">
+                            <label class="form-label">Member</label>
+
+                            <select asp-for="MemberId" class="form-select">
+                                <option value="">-- Select Member --</option>
+
+                                @foreach (var m in Model.Members)
+                                {
+                                    <option value="@m.Id">@m.Name</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Session -->
+                        <div class="mb-3">
+                            <label class="form-label">Session</label>
+
+                            <select asp-for="SessionId" class="form-select">
+                                <option value="">-- Select Session --</option>
+
+                                @foreach (var s in Model.Sessions)
+                                {
+                                    <option value="@s.Id">@s.Id</option>
+                                }
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            Create Booking
+                        </button>
+
+                        <a asp-action="Index" class="btn btn-secondary">
+                            Back
+                        </a>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -15,139 +15,133 @@ namespace GymMangmentsystemBLL.Services.Implementation
     public class MemberSessionService : IMemberSession
     {
         private readonly IUniteOfWork _uniteOfWork;
-        public IMapper _Mapper { get; }
-        public MemberSessionService(IUniteOfWork uniteOfWork,IMapper mapper)
+        private readonly IMapper _mapper;
+
+        public MemberSessionService(IUniteOfWork uniteOfWork, IMapper mapper)
         {
             _uniteOfWork = uniteOfWork;
-            _Mapper = mapper;
+            _mapper = mapper;
         }
 
-
-
-        public bool Create(CreateMemberSession createMemberSession)
-        {
-            //           🎯 Create Booking لازم يتحقق من:
-            //            Member موجود
-            //Session موجودة
-            //عنده Membership Active
-            //السيشن Future(لسه ما بدأتش)
-            //مفيش Duplicate Booking
-            //Capacity متاحة
-            //IsAttended = false
-            try
-            {
-                var member = _uniteOfWork.GetRepository<Member>()
-                       .GetById(createMemberSession.MemberId);
-                var session = _uniteOfWork.GetRepository<Session>()
-                    .GetById(createMemberSession.SessionId);
-                if (session is null || member is null)
-                    return false;
-                var HasActiveMembership = _uniteOfWork.GetRepository<MemberShip>()
-                    .GetAll(m => m.MemberId == createMemberSession.MemberId && m.EndDate > DateTime.Now).Any();
-                if (HasActiveMembership)
-                    return false;
-                //Future Session
-                if (session.StartDate > DateTime.Now) return false;
-
-                // Rule 3: Duplicate booking
-                var alreadyBooked = _uniteOfWork.GetRepository<MemberSession>()
-                    .GetAll(b => b.MemberId == createMemberSession.MemberId && b.SessionId == createMemberSession.SessionId)
-                    .Any();
-
-                if (alreadyBooked)
-                    return false;
-
-                // Rule 2: Capacity
-                var currentCount = _uniteOfWork.GetRepository<MemberSession>()
-                    .GetAll(b => b.SessionId == createMemberSession.SessionId)
-                    .Count();
-
-                if (currentCount >= session.Capacity)
-                    return false;
-
-                // Create
-                var booking = _Mapper.Map<MemberSession>(createMemberSession);
-                booking.IsAttend = false;
-
-                _uniteOfWork.GetRepository<MemberSession>().Add(booking);
-                return _uniteOfWork.SaveChanges() > 0;
-            }
-            catch (Exception)
-            {
-
-                return false;
-            }
-        }
-
-        public bool Delete(int BookingId)
-        {
-            try
-            {
-                var booking = _uniteOfWork.GetRepository<MemberSession>().GetById(BookingId);
-                if (booking is null)
-                    return false;
-
-                var session = _uniteOfWork.GetRepository<Session>().GetById(booking.SessionId);
-                if (session is null)
-                    return false;
-
-                // Rule 5
-                if (session.StartDate <= DateTime.Now)
-                    return false;
-
-                _uniteOfWork.GetRepository<MemberSession>().Delete(booking);
-                return _uniteOfWork.SaveChanges() > 0;
-            }
-            catch (Exception)
-            {
-
-                return false;
-            }
-
-          
-        }
-
+        // ================= Get All =================
         public IEnumerable<MemberSessionVM> GetAll()
         {
-            var membersession = _uniteOfWork.GetRepository<MemberSession>()
-                .GetAll();
-            if (membersession is null||!membersession.Any())
-                return [];
-            return _Mapper.Map<IEnumerable<MemberSession>,IEnumerable<MemberSessionVM>>(membersession); 
+            var bookings = _uniteOfWork.GetRepository<MemberSession>().GetAll();
+
+            if (bookings == null || !bookings.Any())
+                return new List<MemberSessionVM>();
+
+            return _mapper.Map<IEnumerable<MemberSessionVM>>(bookings);
         }
 
-        public MemberSessionVM? GetById(int id)
+        // ================= Create =================
+        public bool Create(CreateMemberSession vm)
         {
-            var membersession = _uniteOfWork.GetRepository<MemberSession>()
-                .GetById(id);
-            if (membersession is null)
-                return null;
-            return _Mapper.Map<MemberSession,MemberSessionVM>(membersession);
+            var member = _uniteOfWork.GetRepository<Member>().GetById(vm.MemberId);
+            if (member is null) return false;
 
+            var session = _uniteOfWork.GetRepository<Session>().GetById(vm.SessionId);
+            if (session is null) return false;
+
+            // Active Membership
+            var hasMembership = _uniteOfWork.GetRepository<MemberShip>()
+                .GetAll(m => m.MemberId == vm.MemberId && m.EndDate > DateTime.Now)
+                .Any();
+
+            if (!hasMembership) return false;
+
+            // Future Session
+            if (session.StartDate <= DateTime.Now)
+                return false;
+
+            // Duplicate
+            var exists = _uniteOfWork.GetRepository<MemberSession>()
+                .GetAll(b => b.MemberId == vm.MemberId && b.SessionId == vm.SessionId)
+                .Any();
+
+            if (exists) return false;
+
+            // Capacity
+            var count = _uniteOfWork.GetRepository<MemberSession>()
+                .GetAll(b => b.SessionId == vm.SessionId)
+                .Count();
+
+            if (count >= session.Capacity)
+                return false;
+
+            var booking = _mapper.Map<MemberSession>(vm);
+            booking.IsAttend = false;
+
+            _uniteOfWork.GetRepository<MemberSession>().Add(booking);
+            _uniteOfWork.SaveChanges();
+
+            return true;
         }
-        // ================= Attendance =================
-        public string MarkAttendance(int bookingId)
+
+        // ================= Delete =================
+        public bool Delete(int bookingId)
         {
             var booking = _uniteOfWork.GetRepository<MemberSession>().GetById(bookingId);
-            if (booking is null)
-                return "Booking not found";
+            if (booking is null) return false;
 
             var session = _uniteOfWork.GetRepository<Session>().GetById(booking.SessionId);
-            if (session is null)
-                return "Session not found";
+
+            if (session.StartDate <= DateTime.Now)
+                return false;
+
+            _uniteOfWork.GetRepository<MemberSession>().Delete(booking);
+            _uniteOfWork.SaveChanges();
+
+            return true;
+        }
+
+        // ================= Attendance =================
+        public void MarkAttendance(int bookingId)
+        {
+            var booking = _uniteOfWork.GetRepository<MemberSession>().GetById(bookingId);
+            if (booking is null) return;
+
+            var session = _uniteOfWork.GetRepository<Session>().GetById(booking.SessionId);
 
             var now = DateTime.Now;
 
-            // Rule 6
             if (!(session.StartDate <= now && session.EndDate > now))
-                return "Session is not ongoing";
+                return;
 
             booking.IsAttend = true;
 
             _uniteOfWork.GetRepository<MemberSession>().Update(booking);
             _uniteOfWork.SaveChanges();
+        }
 
-            return "Attendance marked";
+        // ================= Upcoming =================
+        public IEnumerable<MemberSessionVM> GetMembersForUpcomingSession(int sessionId)
+        {
+            return _uniteOfWork.GetRepository<MemberSession>()
+                .GetAll(b => b.SessionId == sessionId && b.Session.StartDate > DateTime.Now)
+                .Select(b => new MemberSessionVM
+                {
+                    Id = b.Id,
+                    MemberName = b.Member.Name,
+                   
+                });
+        }
+
+        // ================= Ongoing =================
+        public IEnumerable<MemberSessionVM> GetMembersForOngoingSession(int sessionId)
+        {
+            var now = DateTime.Now;
+
+            return _uniteOfWork.GetRepository<MemberSession>()
+                .GetAll(b => b.SessionId == sessionId &&
+                             b.Session.StartDate <= now &&
+                             b.Session.EndDate > now)
+                .Select(b => new MemberSessionVM
+                {
+                    Id = b.Id,
+                    MemberName = b.Member.Name,
+                    IsAttended = b.IsAttend
+                });
         }
     }
 }
