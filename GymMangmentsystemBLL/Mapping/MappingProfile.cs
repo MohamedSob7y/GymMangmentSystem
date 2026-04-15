@@ -7,6 +7,7 @@ using GymMangmentsystemBLL.View_Models.Plan_View_Model;
 using GymMangmentsystemBLL.View_Models.Session_View_Model;
 using GymMangmentsystemBLL.View_Models.Trainer_View_Model;
 using GymMangmentSystemDAL.Entities;
+using GymMangmentSystemDAL.Entities.Enums;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -153,7 +154,9 @@ namespace GymMangmentsystemBLL.Mapping
                     Street = src.Street,
                     City = src.City,
                     BuildingNumber = src.BuildingNumber,
-                }));
+                }))
+                 .ForMember(dest => dest.Speciality,
+        opt => opt.MapFrom(src => (Speciality)int.Parse(src.Specialities.ToString())));
 
             //الطريقة دى لو انا عامله VM وهستخدمه فى اكتر من service 
             //CreateMap<CreateTrainerViewModel, Trainer>()
@@ -166,11 +169,13 @@ namespace GymMangmentsystemBLL.Mapping
             CreateMap<Trainer, TrainerViewModel>()
                 .ForMember(dest => dest.DateOfBirth, options => options.MapFrom(src => src.DateofBirth.ToShortDateString()))
                 .ForMember(dest => dest.Address, options => options.MapFrom(src => $"{src.Address.BuildingNumber}-{src.Address.Street}-{src.Address.City}"));
+               
+
             CreateMap<Trainer, TrainerToUpdateViewModel>()
                 .ForMember(dest => dest.BuildingNumber, options => options.MapFrom(src => src.Address.BuildingNumber))
                 .ForMember(dest => dest.Street, options => options.MapFrom(src => src.Address.Street))
-                .ForMember(dest => dest.City, options => options.MapFrom(src => src.Address.City))
-                .ForMember(dest => dest.Specialities, options => options.MapFrom(src => src.Speciality.ToString()));
+                .ForMember(dest => dest.City, options => options.MapFrom(src => src.Address.City));
+                
             CreateMap<TrainerToUpdateViewModel, Trainer>()
                 .ForMember(dest => dest.Name, options => options.Ignore())
                 .AfterMap((src, dest) =>
@@ -179,6 +184,7 @@ namespace GymMangmentsystemBLL.Mapping
                     dest.Address.City = src.City;
                     dest.Address.BuildingNumber = src.BuildingNumber;
                     dest.UpdatedAt = DateTime.Now;
+
                 });
         }
         //==========================================

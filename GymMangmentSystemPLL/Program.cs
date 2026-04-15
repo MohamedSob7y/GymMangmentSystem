@@ -181,8 +181,6 @@ namespace GymMangmentSystemPLL
             //Member/GetMember => هيروح على Trainer/Index 
             #endregion
             //==========================================================
-            //Run Application 
-            app.Run();
             #endregion
             //==========================================
             #region Call Methods Seeding 
@@ -206,7 +204,10 @@ namespace GymMangmentSystemPLL
             GymDbcontextSeeding.SeedData(dbcontext);//هنا محتاج object From GymDbContext 
             //يبقى الفرق بين Implcicit injection  + Explcicit injection=> Implcicit Ask Clr to inject object in Runtime بطلبه منك بطريقة غير مباشرة تعملهولى Automatic
             //Explciti بطلبه منك بصراحة انك انت برضو اللى تعمله بطريقة Manual Not Automatic 
-
+            
+            
+            //Run Application 
+            app.Run();
             #endregion
         }
     }

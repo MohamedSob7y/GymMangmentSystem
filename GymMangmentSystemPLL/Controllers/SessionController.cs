@@ -217,7 +217,7 @@ namespace GymMangmentSystemPL.Controllers
             var categoriyes = _sessionService.GetCategoryFromDropDown();
             var trainers = _sessionService.GetTrainerForDropDown();
             ViewBag.Trainers = new SelectList(trainers, "Id", "Name");//Id دى اللى هتتبعت
-            ViewBag.Categories = new SelectList(categoriyes, "Id", "Name");
+            ViewBag.Categories = new SelectList(categoriyes, "Id", "CategoryName");
         }
         private void LoadDropDownForTrainerOnly()
         {

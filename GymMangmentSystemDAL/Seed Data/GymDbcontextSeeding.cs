@@ -51,11 +51,11 @@ namespace GymMangmentSystemDAL.Seed_Data
                 return dbContext.SaveChanges() > 0;
 
             }
-            catch (Exception)
+            catch (Exception )
             {
-
                 return false;
             }
+
         }
 
         private static List<T> LoadDataFromJson<T>(string filename) //المفروض انا بقرا من Json ومعرفش نوع اللى هرجعه اية 

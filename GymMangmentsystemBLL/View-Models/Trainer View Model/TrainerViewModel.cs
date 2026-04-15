@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GymMangmentSystemDAL.Entities.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace GymMangmentsystemBLL.View_Models.Trainer_View_Model
         public string Email { get; set; } = null!;
         public string Phone { get; set; } = null!;
         public int Id {  get; set; }
-        public string Specialities {  get; set; } = null!;
+        public string Specialities { get; set; } = null!; 
         public string? Gender {  get; set; }
         public string? DateOfBirth { get; set; }
         public string? Address {  get; set; }

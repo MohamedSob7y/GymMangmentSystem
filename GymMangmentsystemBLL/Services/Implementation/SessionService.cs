@@ -50,9 +50,8 @@ namespace GymMangmentsystemBLL.Services.Implementation
                 _uniteOfWork.GetRepository<Session>().Add(MapperSession);
                 return _uniteOfWork.SaveChanges() > 0;
             }
-            catch (Exception)
+            catch (Exception )
             {
-
                 return false;
             }
         }

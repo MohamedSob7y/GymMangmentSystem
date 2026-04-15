@@ -183,8 +183,7 @@ namespace GymMangmentsystemBLL.Services.Implementation
             #endregion
             //==================================
             #region Automatic Mapping
-            _Mapper.Map(modelToUpdate, trainer);
-
+            
             #endregion
 
             try
