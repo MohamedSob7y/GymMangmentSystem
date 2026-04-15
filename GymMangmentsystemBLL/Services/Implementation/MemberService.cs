@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GymMangmentsystemBLL.Attachment_Service;
 using GymMangmentsystemBLL.Services.Interface;
 using GymMangmentsystemBLL.View_Models.Member_View_Model;
 using GymMangmentSystemDAL.Entities;
@@ -46,16 +47,18 @@ namespace GymMangmentsystemBLL.Services.Implementation
         //}
         #endregion
         //=====================================================
-        #region  Object From  unite Of Work
+        #region  Object From  unite Of Work + IAttachment Service 
         private readonly IUniteOfWork _uniteOfWork;
+        private readonly IAttachmentService _attachmentService;
 
         public IMapper _Mapper { get; }
 
         //Ask CLR To inject object in Runtime from any class implement interface Iuniteofwork
-        public MemberService(IUniteOfWork uniteOfWork,IMapper mapper)
+        public MemberService(IUniteOfWork uniteOfWork, IMapper mapper,IAttachmentService attachmentService)
         {
             _uniteOfWork = uniteOfWork;
             _Mapper = mapper;
+            _attachmentService = attachmentService;
         }
         #endregion
         //=====================================================
@@ -63,7 +66,7 @@ namespace GymMangmentsystemBLL.Services.Implementation
         public IEnumerable<MemberViewModel> GetallMembers()
         {
             //var members = _genericRepository.GetAll();//Before UniteOfWork
-            var members=_uniteOfWork.GetRepository<Member>()
+            var members = _uniteOfWork.GetRepository<Member>()
                 .GetAll();
             if (members is null || !members.Any())
                 //return Enumerable.Empty<MemberViewModel>();//Way one
@@ -110,51 +113,51 @@ namespace GymMangmentsystemBLL.Services.Implementation
             #region Automatic Mapping
             //المفروض كله يجى مباشرة بس Gender اعمله عشان يحولها الى tostring 
             //as Id+Name+Email+Photo+Phone+Gender كلهم موجودين فى Table Member عشان كدة كلهم مباشريين
-            return _Mapper.Map<IEnumerable<Member>,IEnumerable<MemberViewModel>>(members);
-           
+            return _Mapper.Map<IEnumerable<Member>, IEnumerable<MemberViewModel>>(members);
+
             #endregion
         }
         //=====================================================
         public bool Create(CreateMember Member)
         {
-                //Convert from CreateMember ViewModel To Member To Add it in Database
-                //=====================================================
-                #region Before Helper Method
-                //Buisness Validation For Email and Phone Without Helper Method  
-                //لازم يكون الEmail اللى بتدخله مش موجود عشان اقدر اضيف فى Database وكمان اضيف الMember
-                //var EmailIsExsiste = _genericRepository.GetAll(T => T.Email == Member.Email).Any();//Must Change GetAll To Take FunC 
-                //var PhoneIsExsiste = _genericRepository.GetAll(T => T.Phone == Member.Phone).Any();
-                //if (EmailIsExsiste || PhoneIsExsiste) return false;
-                #endregion
-                //=====================================================
-                #region After Helper Method
-                if(IsEmailExist(Member.Email)||IsPhoneExist(Member.Phone)||Member is null)
-                    return false;
-                #endregion
-                //=====================================================
-                #region Manual Mapping
-                //var memberviewmodel = new Member()
-                //{
-                //    Name = Member.Name,
-                //    Email = Member.Email,
-                //    Phone = Member.Phone,
-                //    Gender = Member.Gender,
-                //    DateofBirth = Member.DateOfBirth,
-                //    //Address + HealthRecord are Navigation Property
-                //    Address = new Address()
-                //    {
-                //        BuildingNumber = Member.BuildingNumber,
-                //        City = Member.City,
-                //        Street = Member.Street,
-                //    },
-                //    HealthRecord = new HealthRecord()
-                //    {
-                //        Height = Member.HealthRecord.Height,
-                //        Weight = Member.HealthRecord.Weight,
-                //        Note = Member.HealthRecord.Note,
-                //        BloodType = Member.HealthRecord.BloodType,
-                //    }
-                //};
+            //Convert from CreateMember ViewModel To Member To Add it in Database
+            //=====================================================
+            #region Before Helper Method
+            //Buisness Validation For Email and Phone Without Helper Method  
+            //لازم يكون الEmail اللى بتدخله مش موجود عشان اقدر اضيف فى Database وكمان اضيف الMember
+            //var EmailIsExsiste = _genericRepository.GetAll(T => T.Email == Member.Email).Any();//Must Change GetAll To Take FunC 
+            //var PhoneIsExsiste = _genericRepository.GetAll(T => T.Phone == Member.Phone).Any();
+            //if (EmailIsExsiste || PhoneIsExsiste) return false;
+            #endregion
+            //=====================================================
+            #region After Helper Method
+            if (IsEmailExist(Member.Email) || IsPhoneExist(Member.Phone) || Member is null)
+                return false;
+            #endregion
+            //=====================================================
+            #region Manual Mapping
+            //var memberviewmodel = new Member()
+            //{
+            //    Name = Member.Name,
+            //    Email = Member.Email,
+            //    Phone = Member.Phone,
+            //    Gender = Member.Gender,
+            //    DateofBirth = Member.DateOfBirth,
+            //    //Address + HealthRecord are Navigation Property
+            //    Address = new Address()
+            //    {
+            //        BuildingNumber = Member.BuildingNumber,
+            //        City = Member.City,
+            //        Street = Member.Street,
+            //    },
+            //    HealthRecord = new HealthRecord()
+            //    {
+            //        Height = Member.HealthRecord.Height,
+            //        Weight = Member.HealthRecord.Weight,
+            //        Note = Member.HealthRecord.Note,
+            //        BloodType = Member.HealthRecord.BloodType,
+            //    }
+            //};
             #endregion
             //=====================================================
             //return _genericRepository.Add(memberviewmodel) > 0; //Before unite ofWork
@@ -163,7 +166,21 @@ namespace GymMangmentsystemBLL.Services.Implementation
             #region Automatic Mapping
             //كلهم مباشرين معادا Address + HealthRecord
             //Name+Email+Phone+Photo
-            var memberviewmodel=_Mapper.Map<CreateMember,Member>(Member);
+            var memberviewmodel = _Mapper.Map<CreateMember, Member>(Member);
+            memberviewmodel.HealthRecord = _Mapper.Map<HealthRecordViewmodel, HealthRecord>(Member.HealthRecord);
+            //=====================================================
+            #region After Iaachament Service Implementation with Old Way
+            //After Attachment Service
+            var PhotoName = _attachmentService.Upload("Members", Member.PhotoFile);
+            if (string.IsNullOrEmpty(PhotoName))
+                return false;
+            memberviewmodel.Photo = PhotoName;
+            //هنا فى مشكلة ان لو محصلشى Creation هتفضل الصورة معمولها Upload on Server وانا مش عايز كدة 
+            //انا عايز لو محصلشى Creation احذف الصورة اللى اترفعت مش اسيبها موجودة على server  حتى لو محصلشى Createion 
+            //Solve this Problem => Var Variable = SaveChanges ولو رجعت بTrue يبقى حصل الCreation بالتالى خلاص مش هعلم حاجة 
+            //انما لو رجعت بFalse يبقى محصلشلى creation بالتالى احذف الصورة من server
+            #endregion
+            //=====================================================
             #endregion
             //=====================================================
             //After Unite Of Work
@@ -171,15 +188,22 @@ namespace GymMangmentsystemBLL.Services.Implementation
             {
                 _uniteOfWork.GetRepository<Member>()
                            .Add(memberviewmodel);
-                return _uniteOfWork.SaveChanges() > 0;
+                var isCreated= _uniteOfWork.SaveChanges() > 0;//To Solve Problem With Attachment Service 
+                if(!isCreated)
+                {
+                    //RollBack =>Delete Photo From Server
+                    _attachmentService.Delete(PhotoName, "Members");
+                    return false;
+                }
+               return isCreated;
             }
             catch (Exception)
             {
 
                 return false;
             }
-            
-           
+
+
         }
         //=====================================================
         public MemberViewModel? GetMemberDetails(int MemberId)
@@ -231,7 +255,7 @@ namespace GymMangmentsystemBLL.Services.Implementation
             #region Automatic Mapping
             //كله مباشر ماعدا حتى الaddress اعملها عادى بالطريقة بتاعته من غير VM
             //كمان فى DatOfBirth اللى بيحوله الى ToShortDateString  ولو معلمتهوش يحولها هيحولها الى tostring مشToShortDateString فلازم اعلمه  
-            var memberviewmodel =_Mapper.Map<Member, MemberViewModel>(member);
+            var memberviewmodel = _Mapper.Map<Member, MemberViewModel>(member);
             #endregion
             //==========================================
             #region Solving Problem With PlanName+Memnership
@@ -296,7 +320,7 @@ namespace GymMangmentsystemBLL.Services.Implementation
             #endregion
             //=====================================
             #region Automatic Mapping
-            return _Mapper.Map<HealthRecord,HealthRecordViewmodel>(memberhealthrecord);
+            return _Mapper.Map<HealthRecord, HealthRecordViewmodel>(memberhealthrecord);
             #endregion
             //=====================================
             #endregion
@@ -322,7 +346,7 @@ namespace GymMangmentsystemBLL.Services.Implementation
             #endregion
             //==========================
             #region Automatic Mapping
-            return _Mapper.Map<Member,MemberToUpdateViewModel>(member);
+            return _Mapper.Map<Member, MemberToUpdateViewModel>(member);
             #endregion
         }
 
@@ -332,15 +356,15 @@ namespace GymMangmentsystemBLL.Services.Implementation
             {
                 //Make Validation for Email + Phone So make Helper Method 
                 #region Before Helper Method
-                //var EmailExsist = _genericRepository.GetAll(T => T.Email == memberToUpdateViewModel.Email).Any();
-                //var PhoneExsist = _genericRepository.GetAll(T => T.Phone == memberToUpdateViewModel.Phone).Any();
-                //if (EmailExsist && PhoneExsist) return false; 
+                var EmailExsist = _uniteOfWork.GetRepository<Member>().GetAll(T => T.Email == memberToUpdateViewModel.Email && T.Id != MemberId).Any();
+                var PhoneExsist = _uniteOfWork.GetRepository<Member>().GetAll(T => T.Phone == memberToUpdateViewModel.Phone && T.Id != MemberId).Any();
+                if (EmailExsist && PhoneExsist) return false;
                 #endregion
                 //==============================================
                 #region After Helper Method
-                if(IsEmailExist(memberToUpdateViewModel.Email)||
-                    IsPhoneExist(memberToUpdateViewModel.Phone))
-                    return false;
+                //if(IsEmailExist(memberToUpdateViewModel.Email)||
+                //    IsPhoneExist(memberToUpdateViewModel.Phone))
+                //    return false;
                 //مش عايز يدخلى اى email موجود or Phone موجود
 
                 #endregion
@@ -373,7 +397,7 @@ namespace GymMangmentsystemBLL.Services.Implementation
                 //==============================================
                 _uniteOfWork.GetRepository<Member>()
                     .Update(member);
-                return _uniteOfWork.SaveChanges()>0;
+                return _uniteOfWork.SaveChanges() > 0;
 
             }
             catch (Exception)
@@ -427,13 +451,22 @@ namespace GymMangmentsystemBLL.Services.Implementation
                     foreach (var Memebrship in Memebrships)
                     {
                         //_MembershipRepository.Delete(Memebrship);//First Trancsation //Before UnitOfWork
-                        Repo03.Delete(Memebrship);   
+                        Repo03.Delete(Memebrship);
                     }
                 }
                 //return _genericRepository.Delete(member) > 0;//Second Transcation    //Before UnitOfWork
                 _uniteOfWork.GetRepository<Member>()
                    .Delete(member);
-                return _uniteOfWork.SaveChanges()>0;
+
+                //return _uniteOfWork.SaveChanges() > 0;
+
+                //After Implement Attachment Service 
+                var IsDeleted= _uniteOfWork.SaveChanges() > 0;
+                if(IsDeleted)
+                {
+                    _attachmentService.Delete(member.Photo, "Members");
+                }
+                return IsDeleted;
             }
             catch (Exception)
             {
@@ -467,7 +500,7 @@ namespace GymMangmentsystemBLL.Services.Implementation
                .GetAll(T => T.Phone == phone).Any();
         }
 
-      
+
 
         #endregion
     }

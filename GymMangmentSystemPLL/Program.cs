@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GymMangmentsystemBLL.Attachment_Service;
 using GymMangmentsystemBLL.Mapping;
 using GymMangmentsystemBLL.Services.Implementation;
 using GymMangmentsystemBLL.Services.Interface;
@@ -91,6 +92,30 @@ namespace GymMangmentSystemPLL
             builder.Services.AddScoped<IMemberServices, MemberService>();
             #endregion
             //==========================================
+            #region Object From IPlanService
+            builder.Services.AddScoped<IPlanService,PlanService>();
+            #endregion
+            //==========================================
+            #region Object From ISessionService
+            builder.Services.AddScoped<ISessionService, SessionService>();
+            #endregion
+            //==========================================
+            #region Object From ITrainerService
+            builder.Services.AddScoped<ITrainerService, TrainerService>();
+            #endregion
+            //==========================================
+            #region Object IAttachment Service
+            builder.Services.AddScoped<IAttachmentService,AttachmentService>();
+            #endregion
+            //==========================================
+            #region Object From IMembership Service
+            builder.Services.AddScoped<IMembershipService,MembershipService>();
+            #endregion
+            //==========================================
+            #region Object From IMemberSession Service
+            builder.Services.AddScoped<IMemberSession,MemberSessionService>();
+            #endregion
+            //==========================================
             #endregion
             //==========================================
             #region Build + Configuration+ Run application
@@ -156,8 +181,6 @@ namespace GymMangmentSystemPLL
             //Member/GetMember => هيروح على Trainer/Index 
             #endregion
             //==========================================================
-            //Run Application 
-            app.Run();
             #endregion
             //==========================================
             #region Call Methods Seeding 
@@ -181,7 +204,10 @@ namespace GymMangmentSystemPLL
             GymDbcontextSeeding.SeedData(dbcontext);//هنا محتاج object From GymDbContext 
             //يبقى الفرق بين Implcicit injection  + Explcicit injection=> Implcicit Ask Clr to inject object in Runtime بطلبه منك بطريقة غير مباشرة تعملهولى Automatic
             //Explciti بطلبه منك بصراحة انك انت برضو اللى تعمله بطريقة Manual Not Automatic 
-
+            
+            
+            //Run Application 
+            app.Run();
             #endregion
         }
     }

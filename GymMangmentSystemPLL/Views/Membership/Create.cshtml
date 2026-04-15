@@ -1,0 +1,73 @@
+﻿@using GymMangmentsystemBLL.View_Models.MembershipViewModel
+@model CreateMembershipVM
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4>Create Membership</h4>
+                </div>
+
+                <div class="card-body">
+
+                    <form asp-action="Create" method="post">
+
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger">
+                                Please fix the errors
+                            </div>
+                        }
+
+                        <!-- Member -->
+                        <div class="mb-3">
+                            <label class="form-label">Member</label>
+                            <select asp-for="MemberId" class="form-select">
+                                <option value="">-- Select Member --</option>
+
+                                @if (ViewBag.Members != null)
+                                {
+                                    foreach (var m in ViewBag.Members)
+                                    {
+                                        <option value="@m.Id">@m.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Plan -->
+                        <div class="mb-3">
+                            <label class="form-label">Plan</label>
+                            <select asp-for="PlanId" class="form-select">
+                                <option value="">-- Select Plan --</option>
+
+                                @if (ViewBag.Members != null)
+                                {
+                                    foreach (var m in ViewBag.Members)
+                                    {
+                                        <option value="@m.Id">@m.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary">
+                                Create
+                            </button>
+
+                            <a asp-action="Index" class="btn btn-secondary">
+                                Cancel
+                            </a>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

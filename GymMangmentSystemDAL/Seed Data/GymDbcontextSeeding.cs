@@ -51,11 +51,11 @@ namespace GymMangmentSystemDAL.Seed_Data
                 return dbContext.SaveChanges() > 0;
 
             }
-            catch (Exception)
+            catch (Exception )
             {
-
                 return false;
             }
+
         }
 
         private static List<T> LoadDataFromJson<T>(string filename) //المفروض انا بقرا من Json ومعرفش نوع اللى هرجعه اية 
@@ -65,7 +65,7 @@ namespace GymMangmentSystemDAL.Seed_Data
             //هكون الFile Path عشان مش معايا 
             //wwwroot موجود دايما فى Layer  اللى تقدر تعملها Run 
             //يعنى موجود دايما فى Excutable Layer Assemply
-            var filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Seed Files",filename);
+            var filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Seed Files", filename);
             //يوصل للPL Layer=>Directory.GetCurrentDirectory()
             // كدة انا كونت الفايل path عشان اقدر اعمل Seeding منه على طول لانه اصلا لو كان موجود فى Bin Folder مكنتش هعمل الكلام دا كله
             if (!File.Exists(filepath)) return [];  //اتاكد ان الpath موجود اصلا 

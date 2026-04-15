@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using GymManagementSystemBLL.View_Models.SessionVm;
 using GymMangmentsystemBLL.View_Models.Member_View_Model;
+using GymMangmentsystemBLL.View_Models.MemberSession_Viewmodel;
+using GymMangmentsystemBLL.View_Models.MembershipViewModel;
 using GymMangmentsystemBLL.View_Models.Plan_View_Model;
 using GymMangmentsystemBLL.View_Models.Session_View_Model;
 using GymMangmentsystemBLL.View_Models.Trainer_View_Model;
 using GymMangmentSystemDAL.Entities;
+using GymMangmentSystemDAL.Entities.Enums;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -34,6 +37,13 @@ namespace GymMangmentsystemBLL.Mapping
             MapPlan();
             #endregion
             //=======================================
+            #region Automatic Mapping For Memberships
+            MapMembership();
+            #endregion
+            //=======================================
+            #region Automatic Mapping For MemberSession
+            MapMemberSession();
+            #endregion
         }
         //==========================================
         private void MapMember()
@@ -87,9 +97,9 @@ namespace GymMangmentsystemBLL.Mapping
             //====================================================
             #region GetMemberDetailsToUpdate
             CreateMap<Member, MemberToUpdateViewModel>()
-                .ForMember(dest => dest.BuildingNumber,options => options.MapFrom(src => src.Address.BuildingNumber))
-                .ForMember(dest => dest.Street,options =>options.MapFrom(src => src.Address.Street))
-                .ForMember(dest => dest.City,options =>options.MapFrom(src => src.Address.City));
+                .ForMember(dest => dest.BuildingNumber, options => options.MapFrom(src => src.Address.BuildingNumber))
+                .ForMember(dest => dest.Street, options => options.MapFrom(src => src.Address.Street))
+                .ForMember(dest => dest.City, options => options.MapFrom(src => src.Address.City));
             #endregion
             //====================================================
             #region UpdateMember
@@ -105,7 +115,7 @@ namespace GymMangmentsystemBLL.Mapping
                     dest.Address.Street = src.Street;
                     //فى فى فرق كبير  فى services انى انادى على Mapper 
                     //بين Mapper and Update ساعتها مش هعمل Dest.UpdatedAt هنا اروح اعملها فى service انما طالما الفرق مش كبير والاتين ورا بعض على طول عادى اعملها فى automapper
-                    dest.UpdatedAt=DateTime.Now;
+                    dest.UpdatedAt = DateTime.Now;
                 });
             #endregion
         }
@@ -125,6 +135,14 @@ namespace GymMangmentsystemBLL.Mapping
             CreateMap<CreateSessionViewModel, Session>();
             CreateMap<Session, UpdateSessionViewModel>().ReverseMap();
 
+            //Mapping For Select_Trainer_Category Viewmodel
+            #region Mapping For Select_Trainer_Category
+            CreateMap<Trainer, TrainerSelectViewmodel>();
+            CreateMap<Category, CategorySelectViewModel>()
+                .ForMember(dest => dest.Name, options => options.MapFrom(src => src.CategoryName));
+            //فى كمشكلة انى لازم اعرفه ان الاسم بتاع CategoryName==Name اللى موجود فى Viewmodel
+            #endregion
+
         }
         //==========================================
         private void MapTrainer()
@@ -136,7 +154,9 @@ namespace GymMangmentsystemBLL.Mapping
                     Street = src.Street,
                     City = src.City,
                     BuildingNumber = src.BuildingNumber,
-                }));
+                }))
+                 .ForMember(dest => dest.Speciality,
+        opt => opt.MapFrom(src => (Speciality)int.Parse(src.Specialities.ToString())));
 
             //الطريقة دى لو انا عامله VM وهستخدمه فى اكتر من service 
             //CreateMap<CreateTrainerViewModel, Trainer>()
@@ -149,10 +169,13 @@ namespace GymMangmentsystemBLL.Mapping
             CreateMap<Trainer, TrainerViewModel>()
                 .ForMember(dest => dest.DateOfBirth, options => options.MapFrom(src => src.DateofBirth.ToShortDateString()))
                 .ForMember(dest => dest.Address, options => options.MapFrom(src => $"{src.Address.BuildingNumber}-{src.Address.Street}-{src.Address.City}"));
+               
+
             CreateMap<Trainer, TrainerToUpdateViewModel>()
                 .ForMember(dest => dest.BuildingNumber, options => options.MapFrom(src => src.Address.BuildingNumber))
                 .ForMember(dest => dest.Street, options => options.MapFrom(src => src.Address.Street))
                 .ForMember(dest => dest.City, options => options.MapFrom(src => src.Address.City));
+                
             CreateMap<TrainerToUpdateViewModel, Trainer>()
                 .ForMember(dest => dest.Name, options => options.Ignore())
                 .AfterMap((src, dest) =>
@@ -160,17 +183,33 @@ namespace GymMangmentsystemBLL.Mapping
                     dest.Address.Street = src.Street;
                     dest.Address.City = src.City;
                     dest.Address.BuildingNumber = src.BuildingNumber;
-                    dest.UpdatedAt= DateTime.Now;
+                    dest.UpdatedAt = DateTime.Now;
+
                 });
         }
         //==========================================
         private void MapPlan()
         {
-            CreateMap<Plan,PlanVM>();
+            CreateMap<Plan, PlanVM>();
             CreateMap<Plan, PlanToUpdateVM>();
             CreateMap<PlanToUpdateVM, Plan>()
                 .ForMember(dest => dest.Name, Options => Options.Ignore())
                 .ForMember(dest => dest.UpdatedAt, Options => Options.MapFrom(src => DateTime.Now));
+        }
+        //==========================================
+        private void MapMembership()
+        {
+            //For GetAll + GetById
+            CreateMap<MemberShip, MembershipVM>();
+            //For Creation
+            CreateMap<CreateMembershipVM, MemberShip>();
+        }
+        //==========================================
+        private void MapMemberSession()
+        {
+            CreateMap<MemberSession, MemberSessionVM>()
+            .ForMember(d => d.MemberName, o => o.MapFrom(s => s.Member.Name));
+            CreateMap<CreateMemberSession, MemberSession>();
         }
     }
 }

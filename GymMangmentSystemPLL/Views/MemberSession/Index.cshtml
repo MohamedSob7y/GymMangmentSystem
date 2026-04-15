@@ -1,0 +1,40 @@
+﻿@model IEnumerable<SessionViewModel>
+
+<header class="bg-primary text-white rounded-3 p-4 shadow-sm mt-5 mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="mb-1 fw-semibold">Sessions</h2>
+            <p class="mb-0 text-light opacity-75">Manage Sessions Bookings</p>
+        </div>
+    </div>
+</header>
+
+<div class="row g-4">
+
+    @foreach (var session in Model)
+    {
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm">
+
+                <div class="card-header text-white @(session.StartDate <= DateTime.Now && session.EndDate > DateTime.Now ? "bg-success" : "bg-primary")">
+                    <h5 class="mb-0">@session.Id</h5>
+                </div>
+
+                <div class="card-body text-center">
+                    <p>@session.Description</p>
+
+                    <p><strong>Start:</strong> @session.StartDate</p>
+                    <p><strong>End:</strong> @session.EndDate</p>
+
+                    <a asp-action="@(session.StartDate <= DateTime.Now && session.EndDate > DateTime.Now ? "GetMembersForOngoingSessions" : "GetMembersForUpcomingSession")"
+                       asp-route-sessionId="@session.Id"
+                       class="btn btn-outline-primary btn-sm">
+                        View Members
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    }
+
+</div>

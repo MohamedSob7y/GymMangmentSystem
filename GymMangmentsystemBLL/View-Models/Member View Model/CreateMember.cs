@@ -1,4 +1,5 @@
 ﻿using GymMangmentSystemDAL.Entities.Enums;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -28,7 +29,7 @@ namespace GymMangmentsystemBLL.View_Models.Member_View_Model
         [Required(ErrorMessage ="Phone is Required")]
         [Phone(ErrorMessage ="inValid Format Phone")]
         [DataType(DataType.PhoneNumber)]//for ui Hint
-        [RegularExpression(@"^(010|011|015|012)\d{8}$")]//عشان اخليه مصرى بس 
+        [RegularExpression(@"^(010|011|015|012)\d{8}$",ErrorMessage ="Must Be Valid Egyption Phone Number")]//عشان اخليه مصرى بس 
         //Allowed Number After 010 هو 8 
        // [StringLength(11,MinimumLength =,ErrorMessage ="Phone must be betwee")]//دى لوعملتها ممكن يبعت اقل من 11 عادى فكدة مش صح عشان كدة اشيلها
         public string Phone { get; set; } = null!;
@@ -50,5 +51,11 @@ namespace GymMangmentsystemBLL.View_Models.Member_View_Model
         //هعمل HealthRecord Viewmodel عشان هستخدمها فى اكتر من مكان
         [Required(ErrorMessage = "HealthRecord Data is Required")]
         public HealthRecordViewmodel HealthRecord { get; set; } = null!;
+
+
+        //After IAttachment Service =>Must Be Upload Photo بنستخدم دى عشان اقدر Refactor Data
+        [Required(ErrorMessage ="Photo is Required")]
+        [Display(Name="Profile Photo")]//عشان اخليها تظهر للUser with this Name
+        public IFormFile PhotoFile { get; set; }=null!;
     }
 }

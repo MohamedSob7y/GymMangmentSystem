@@ -50,9 +50,8 @@ namespace GymMangmentsystemBLL.Services.Implementation
                 _uniteOfWork.GetRepository<Session>().Add(MapperSession);
                 return _uniteOfWork.SaveChanges() > 0;
             }
-            catch (Exception)
+            catch (Exception )
             {
-
                 return false;
             }
         }
@@ -86,7 +85,7 @@ namespace GymMangmentsystemBLL.Services.Implementation
             #region With SessionRepository
             var session = _uniteOfWork.SessionRepository
                      .GetAllSessionWithCategoryAndTrainer();
-            if (session.Any() ||
+            if (!session.Any() ||
                 session is null)
                 return [];
             #region Manual Mapping
@@ -233,6 +232,24 @@ namespace GymMangmentsystemBLL.Services.Implementation
                 return false;
             }
         }
+
+        #region Select_Trainer_Category
+        public IEnumerable<CategorySelectViewModel> GetCategoryFromDropDown()
+        {
+            //Get All Category
+            var category = _uniteOfWork.GetRepository<Category>().GetAll();
+            return _Mapper.Map<IEnumerable<Category>, IEnumerable<CategorySelectViewModel>>(category);//عايز ارجع فقط Id + Name مش كله 
+            //فيه مشكلة هنا فى Mapping ان الاسم مش نفس الاسم يعنى CategoryVM has CategoryName    + CategorySelectViewmodel has Name بالتالى مش نفس الاسم عشان كان محتاج اعمله عشان يعلرف يعملها Mapping 
+        }
+
+        public IEnumerable<TrainerSelectViewmodel> GetTrainerForDropDown()
+        {
+            //Get All Trainers
+            var Trainers = _uniteOfWork.GetRepository<Trainer>().GetAll();
+            return _Mapper.Map<IEnumerable<Trainer>, IEnumerable<TrainerSelectViewmodel>>(Trainers);//عمله فى Mapping Profile
+        } 
+        #endregion
+
         //===============================================================================
         #region Helper Method
         private bool TrainerExsist(int TrainerId)
@@ -247,7 +264,7 @@ namespace GymMangmentsystemBLL.Services.Implementation
         }
         private bool TimeValid(DateTime StartDate,DateTime EndDate)
         {
-            return EndDate > StartDate;
+            return EndDate > StartDate&&DateTime.Now>StartDate;
         }
         private bool IsSessionAvailableToUpdate(Session session)
         {
@@ -274,6 +291,8 @@ namespace GymMangmentsystemBLL.Services.Implementation
             if (ActiveBooking) return false;
             return true;
         }
+
+      
         #endregion
     }
 }
