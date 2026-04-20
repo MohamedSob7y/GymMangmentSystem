@@ -132,7 +132,7 @@ namespace GymMangmentSystemPLL
             app.UseRouting();//check that url match Routing Table route دى بتmatch فقط انما اللى بيفذ الrouting => MapControllerRoute
             app.UseAuthorization();
             app.MapStaticAssets();//==UseStaticFiles نفس ال pipline بس دى اتعملت مع .net 8 عشان بتكون more Optimization
-           
+           app.UseStaticFiles();//دى supported in .net9 with development + Deployment 
             //=========================================================
             #region شرح Routing 
             //اول مابعمل launch for application واعمل run بيتعمله routing table => عشان UseRouting Pipline match URL موجود فى Routing Table 
